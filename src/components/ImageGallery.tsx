@@ -80,6 +80,7 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
       });
     }
   };
+  //Image viewing in new tab with zoom and pan
 
   const handleCopyPrompt = (imageData: ImageData, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -174,6 +175,11 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
       });
     }
   };
+
+  
+    
+
+  
 
   const getImageUrl = (image: string | ImageData): string => {
     return typeof image === 'string' ? image : image.url;
