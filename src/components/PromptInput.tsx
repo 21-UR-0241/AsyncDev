@@ -393,7 +393,17 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
               >
                 {sourceImage ? (
                   <div className="relative p-4">
-                    <img src={sourceImage} alt="Source" className="w-full h-48 object-contain rounded-lg" />
+                    <div className="relative rounded-lg overflow-hidden">
+                      <img src={sourceImage} alt="Source" className="w-full h-48 object-contain" />
+                      {/* Watermark in bottom right corner */}
+                      <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-white/80 text-[10px] font-medium">
+                        <span>Watermark "Async"</span>
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="opacity-80">
+                          <circle cx="16" cy="16" r="14" stroke="white" strokeWidth="1.5" fill="none"/>
+                          <path d="M10 22 L22 10 M22 10 L22 18 M22 10 L14 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
                     <Button size="sm" variant="destructive" className="absolute top-6 right-6" onClick={removeSourceImage}>
                       <X className="w-4 h-4" />
                     </Button>
