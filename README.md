@@ -1,8 +1,8 @@
-# ⚡AI Async Studio
+# 🤖 Async AI Tool
 
 An AI-powered marketing visual generator that creates stunning, brand-tailored images through an interactive onboarding process. Built with modern web technologies and powered by Google's Gemini 2.5 Flash model.
 
-![AI Async Studio](https://img.shields.io/badge/React-18.3.1-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4.19-yellow) ![Supabase](https://img.shields.io/badge/Supabase-2.58.0-green)
+![Async AI Tool](https://img.shields.io/badge/React-18.3.1-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4.19-yellow) ![Supabase](https://img.shields.io/badge/Supabase-2.58.0-green)
 
 ## ✨ Features
 
