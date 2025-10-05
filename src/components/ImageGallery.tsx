@@ -80,7 +80,6 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
       });
     }
   };
-  //Image viewing in new tab with zoom and pan
 
   const handleCopyPrompt = (imageData: ImageData, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -99,6 +98,13 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
 
   const openImageInNewTab = async (imageUrl: string) => {
     try {
+      const isDark = document.documentElement.classList.contains('dark');
+      const bgColor = isDark ? '#000' : '#fff';
+      const textColor = isDark ? '#fff' : '#000';
+      const controlsBg = isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)';
+      const controlsHover = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
+      const controlsBorder = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
+      
       const html = `
         <!DOCTYPE html>
         <html>
@@ -106,17 +112,17 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
             <title>AI Generated Image</title>
             <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { background: #000; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
+              body { background: ${bgColor}; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
               #container { width: 100vw; height: 100vh; overflow: auto; display: flex; align-items: center; justify-content: center; position: relative; }
               #imageWrapper { transition: transform 0.2s ease; cursor: grab; }
               #imageWrapper.dragging { cursor: grabbing; }
               img { display: block; max-width: 100%; max-height: 100vh; user-select: none; -webkit-user-drag: none; }
-              #controls { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); padding: 12px; border-radius: 12px; z-index: 1000; }
-              button { width: 40px; height: 40px; border: none; background: rgba(255, 255, 255, 0.1); color: white; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-              button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+              #controls { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; background: ${controlsBg}; backdrop-filter: blur(10px); padding: 12px; border-radius: 12px; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border: 1px solid ${controlsBorder}; }
+              button { width: 40px; height: 40px; border: none; background: transparent; color: ${textColor}; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; font-weight: 600; }
+              button:hover:not(:disabled) { background: ${controlsHover}; }
               button:disabled { opacity: 0.3; cursor: not-allowed; }
-              #zoomLevel { color: white; text-align: center; font-size: 12px; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.2); }
-              .divider { height: 1px; background: rgba(255, 255, 255, 0.2); margin: 4px 0; }
+              #zoomLevel { color: ${textColor}; text-align: center; font-size: 12px; padding: 8px 0; border-top: 1px solid ${controlsBorder}; font-weight: 500; }
+              .divider { height: 1px; background: ${controlsBorder}; margin: 4px 0; }
             </style>
           </head>
           <body>
@@ -176,11 +182,6 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
     }
   };
 
-  
-    
-
-  
-
   const getImageUrl = (image: string | ImageData): string => {
     return typeof image === 'string' ? image : image.url;
   };
@@ -200,30 +201,30 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
         return (
           <div 
             key={index}
-            className="group relative bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-glow transition-smooth border border-border/50"
+            className="group relative bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border"
           >
             <div 
-              className="bg-muted relative flex items-center justify-center aspect-square cursor-pointer"
+              className="bg-muted relative flex items-center justify-center aspect-square cursor-pointer overflow-hidden"
               onClick={() => openImageInNewTab(imageUrl)}
             >
               <img
                 src={imageUrl}
                 alt={`Generated image ${index + 1}`}
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-smooth flex items-center justify-center">
-                <div className="text-center">
-                  <ExternalLink className="w-12 h-12 text-white mx-auto mb-2" />
-                  <p className="text-white text-sm font-medium">Open in New Tab</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  <ExternalLink className="w-12 h-12 text-white mx-auto mb-2 drop-shadow-lg" />
+                  <p className="text-white text-sm font-semibold drop-shadow-lg">Open Full View</p>
                 </div>
               </div>
             </div>
             
-            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-smooth bg-gradient-to-t from-black/80 to-transparent">
+            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/90 via-black/70 to-transparent">
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  className="flex-1 gradient-primary text-white hover:shadow-glow transition-smooth"
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDownload(imageUrl, "1:1");
@@ -234,7 +235,8 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
                 </Button>
                 <Button
                   size="sm"
-                  className="gradient-primary text-white hover:shadow-glow transition-smooth"
+                  variant="secondary"
+                  className="shadow-lg hover:shadow-xl transition-all"
                   onClick={(e) => handleShare(imageUrl, e)}
                 >
                   <Share2 className="w-4 h-4" />
@@ -242,7 +244,8 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
                 {hasPromptData && (
                   <Button
                     size="sm"
-                    className="gradient-primary text-white hover:shadow-glow transition-smooth"
+                    variant="secondary"
+                    className="shadow-lg hover:shadow-xl transition-all"
                     onClick={(e) => handleCopyPrompt(imageData, e)}
                   >
                     <Copy className="w-4 h-4" />
@@ -253,10 +256,10 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
 
             {/* Prompt Details Section */}
             {hasPromptData && (
-              <div className="p-4 bg-card/95 backdrop-blur-sm">
+              <div className="p-4 bg-card border-t border-border">
                 <button
                   onClick={() => toggleCard(index)}
-                  className="w-full flex items-center justify-between text-left group/button"
+                  className="w-full flex items-center justify-between text-left group/button hover:bg-muted/50 -m-2 p-2 rounded-lg transition-colors"
                 >
                   <h3 className="text-sm font-semibold text-foreground group-hover/button:text-primary transition-colors">
                     Prompt Details
@@ -269,38 +272,36 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
                 </button>
 
                 {isExpanded && (
-                  <div className="mt-3 space-y-3 text-xs">
+                  <div className="mt-3 space-y-3 text-xs animate-in fade-in slide-in-from-top-2 duration-300">
                     {/* Prompt Information */}
                     {imageData.prompt && Object.keys(imageData.prompt).length > 0 && (
-                      <div className="space-y-2">
+                      <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
+                        <h4 className="text-foreground font-semibold text-xs uppercase tracking-wide mb-2">Prompt</h4>
                         {Object.entries(imageData.prompt).map(([key, value]) => (
-                          <div key={key} className="flex flex-col">
-                            <span className="text-blue-500 font-medium capitalize">
-                              {key.replace(/_/g, ' ')}:
+                          <div key={key} className="flex flex-col space-y-1">
+                            <span className="text-primary font-medium capitalize">
+                              {key.replace(/_/g, ' ')}
                             </span>
-                            <span className="text-muted-foreground pl-2">"{value}"</span>
+                            <span className="text-muted-foreground pl-2 leading-relaxed">"{value}"</span>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    {/* Divider */}
-                    {imageData.prompt && imageData.parameters && (
-                      <div className="border-t border-border my-2"></div>
-                    )}
-
                     {/* Parameters */}
                     {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-foreground font-semibold">Generation Parameters:</h4>
-                        {Object.entries(imageData.parameters).map(([key, value]) => (
-                          <div key={key} className="flex flex-col">
-                            <span className="text-purple-500 font-medium capitalize">
-                              {key.replace(/_/g, ' ')}:
-                            </span>
-                            <span className="text-muted-foreground pl-2">{value}</span>
-                          </div>
-                        ))}
+                      <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
+                        <h4 className="text-foreground font-semibold text-xs uppercase tracking-wide mb-2">Parameters</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(imageData.parameters).map(([key, value]) => (
+                            <div key={key} className="flex flex-col space-y-1">
+                              <span className="text-secondary-foreground font-medium capitalize text-xs">
+                                {key.replace(/_/g, ' ')}
+                              </span>
+                              <span className="text-muted-foreground text-xs">{value}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

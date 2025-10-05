@@ -126,68 +126,57 @@ const Index = () => {
     const defaultPrompt = formatPromptForAI(promptData);
 
     return (
-      <div className="min-h-screen gradient-subtle">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="inline-block text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                ⚡AI Async Studio
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                Generate stunning visuals tailored to your brand
-              </p>
-              
-              <Button
-                onClick={() => setOnboardingComplete(false)}
-                variant="outline"
-                className="mb-8"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Update Preferences
-              </Button>
-            </div>
+      <div className="min-h-screen bg-background">
+        {/* Prompt Input with Sidebar - This is the full interface */}
+        <PromptInput
+          defaultPrompt={defaultPrompt}
+          jsonPrompt={promptData as unknown as Record<string, unknown>}
+          onGenerate={handleGenerateImage}
+          isGenerating={isGenerating}
+        />
 
-            <div className="max-w-3xl mx-auto mb-12">
-              <PromptInput
-                defaultPrompt={defaultPrompt}
-                jsonPrompt={promptData as unknown as Record<string, unknown>}
-                onGenerate={handleGenerateImage}
-                isGenerating={isGenerating}
-              />
-            </div>
-
-            {generatedImages.length > 0 ? (
+        {/* Generated Images Section - Positioned below the prompt input form */}
+        {generatedImages.length > 0 && (
+          <div className="bg-background border-t border-border">
+            <div className="container mx-auto px-6 py-8 max-w-7xl">
               <div className="space-y-6">
-                <h2 className="text-2xl font-semibold">Your Generated Images</h2>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">Generated Images</h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {generatedImages.length} {generatedImages.length === 1 ? 'image' : 'images'} created
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => setGeneratedImages([])}
+                    className="gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Clear All
+                  </Button>
+                </div>
                 <ImageGallery 
                   images={generatedImages}
                   onDownload={handleDownload}
                 />
               </div>
-            ) : (
-              <div className="text-center py-20">
-                <div className="w-24 h-24 mx-auto mb-6 gradient-primary rounded-full flex items-center justify-center shadow-glow">
-                  <ImagePlus className="w-12 h-12 text-white" />
-                </div>
-                <h3 className="text-2xl font-semibold mb-3">Ready to Create</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Click the button above to generate your first set of marketing images
-                </p>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen gradient-subtle flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-4xl">
-        {currentStep > 0 && (
-          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-        )}
-        {renderStep()}
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      <div className="min-h-screen gradient-subtle flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-4xl">
+          {currentStep > 0 && (
+            <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+          )}
+          {renderStep()}
+        </div>
       </div>
     </div>
   );
