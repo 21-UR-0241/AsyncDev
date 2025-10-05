@@ -35,8 +35,9 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
   const [recentPrompts, setRecentPrompts] = useState<RecentPrompt[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem('theme') as Theme;
+    const stored = window.localStorage?.getItem('theme') as Theme;
     if (stored) return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
@@ -44,12 +45,23 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   // Apply theme on change
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
-    localStorage.setItem('theme', theme);
+    if (window.localStorage) {
+      window.localStorage.setItem('theme', theme);
+    }
   }, [theme]);
 
   const handleThemeChange = (newTheme: Theme) => {
@@ -258,6 +270,8 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
             onClick={() => {
               setCustomPrompt("");
               setSourceImage(null);
+              setCustomJsonPrompt("{}");
+              setJsonError(null);
               toast({ title: "New chat", description: "Ready for a new generation" });
             }}
           >
@@ -336,18 +350,27 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Top Menu Bar */}
-        <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-3 flex items-center gap-3">
-          {!sidebarOpen && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(true)}
-              className="h-9 w-9 p-0"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-          )}
-          <h1 className="text-xl font-bold">Image Generator</h1>
+        <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {!sidebarOpen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(true)}
+                className="h-9 w-9 p-0"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            )}
+            <h1 className="text-xl font-bold">Image Generator</h1>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="w-4 h-4" />
+            <span className="font-medium">{currentTime.toLocaleTimeString()}</span>
+            <span className="text-muted-foreground/50">•</span>
+            <span>{currentTime.toLocaleDateString()}</span>
+          </div>
         </div>
 
         {/* Main Form */}
@@ -405,21 +428,19 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prompt" className="text-base font-semibold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Custom Prompt
-              </Label>
-              <Textarea
-                id="prompt"
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="Ask Async to generate an image..."
-                rows={4}
-                className="resize-none"
-              />
-              <p className="text-sm text-muted-foreground">
-                {sourceImage ? "Describe how to transform the image" : "Customize your prompt"}
-              </p>
+              <div className="relative">
+                <Textarea
+                  id="prompt"
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                  placeholder="Ask Async"
+                  rows={1}
+                  className="resize-none min-h-[56px] rounded-3xl border-2 border-border bg-muted/30 px-6 py-4 pr-32 text-base focus:border-primary transition-colors"
+                  style={{ paddingBottom: '3rem' }}
+                />
+                {/* Bottom Toolbar - Gemini Style */}
+                {/*  */}
+              </div>
             </div>
 
             <Button

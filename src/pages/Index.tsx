@@ -10,7 +10,8 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { ImageGallery } from "@/components/ImageGallery";
 import { PromptInput } from "@/components/PromptInput";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ImagePlus, RefreshCw } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Sparkles, ImagePlus, RefreshCw, Heart, Mail, Shield, FileText } from "lucide-react";
 import { OnboardingData } from "@/types/onboarding";
 import { buildPrompt, formatPromptForAI } from "@/utils/promptBuilder";
 import { toast } from "@/hooks/use-toast";
@@ -22,6 +23,9 @@ const Index = () => {
   const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({});
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const totalSteps = 7;
 
@@ -126,14 +130,16 @@ const Index = () => {
     const defaultPrompt = formatPromptForAI(promptData);
 
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         {/* Prompt Input with Sidebar - This is the full interface */}
-        <PromptInput
-          defaultPrompt={defaultPrompt}
-          jsonPrompt={promptData as unknown as Record<string, unknown>}
-          onGenerate={handleGenerateImage}
-          isGenerating={isGenerating}
-        />
+        <div className="flex-1">
+          <PromptInput
+            defaultPrompt={defaultPrompt}
+            jsonPrompt={promptData as unknown as Record<string, unknown>}
+            onGenerate={handleGenerateImage}
+            isGenerating={isGenerating}
+          />
+        </div>
 
         {/* Generated Images Section - Positioned below the prompt input form */}
         {generatedImages.length > 0 && (
@@ -164,6 +170,255 @@ const Index = () => {
             </div>
           </div>
         )}
+
+        {/* Footer with Credits */}
+        <footer className="bg-background border-t border-border mt-auto " >
+          <div className="container mx-auto px-6 py-8 max-w-7xl">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Made </span>
+                {/* <Heart className="w-4 h-4 text-red-500 fill-red-500" /> */}
+                <span>by</span>
+                <a 
+                  href="https://github.com/HarmonJavier01" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="font-semibold text-foreground hover:text-primary transition-colors"
+                >
+                  Async
+                </a>
+              </div>
+              
+              <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <button 
+                  onClick={() => setPrivacyOpen(true)}
+                  className="hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Privacy Policy
+                </button>
+                <button 
+                  onClick={() => setTermsOpen(true)}
+                  className="hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Terms of Service
+                </button>
+                <button 
+                  onClick={() => setContactOpen(true)}
+                  className="hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Contact
+                </button>
+              </div>
+              
+              <div className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} Async. All rights reserved.
+              </div>
+            </div>
+            
+           <div className="mt-6 pt-6 border-t border-border">
+              <p className="text-xs text-center text-muted-foreground">
+                Powered by AI technology. Images generated are for creative and marketing purposes.
+              </p>
+            </div>
+          </div>
+        </footer>
+
+        {/* Privacy Policy Dialog */}
+        <Dialog open={privacyOpen} onOpenChange={setPrivacyOpen}>
+          <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <Shield className="w-6 h-6 text-primary" />
+                Privacy Policy
+              </DialogTitle>
+              <DialogDescription>
+                Last updated: {new Date().toLocaleDateString()}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6 py-4 text-sm">
+              <section>
+                <h3 className="text-lg font-semibold mb-2">1. Information We Collect</h3>
+                <p className="text-muted-foreground">
+                  We collect information you provide directly to us, including your name, email address, 
+                  and any content you create using our service. We also automatically collect certain 
+                  information about your device and how you interact with our service.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">2. How We Use Your Information</h3>
+                <p className="text-muted-foreground">
+                  We use the information we collect to provide, maintain, and improve our services, 
+                  to process your requests, and to communicate with you about updates and features.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">3. Information Sharing</h3>
+                <p className="text-muted-foreground">
+                  We do not sell your personal information. We may share your information with service 
+                  providers who assist us in operating our service, and when required by law.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">4. Data Security</h3>
+                <p className="text-muted-foreground">
+                  We implement appropriate technical and organizational measures to protect your 
+                  personal information against unauthorized access, alteration, disclosure, or destruction.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">5. Your Rights</h3>
+                <p className="text-muted-foreground">
+                  You have the right to access, correct, or delete your personal information. 
+                  You may also object to or restrict certain processing of your data.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">6. Contact Us</h3>
+                <p className="text-muted-foreground">
+                  If you have any questions about this Privacy Policy, please contact us at privacy@async.com
+                </p>
+              </section>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Terms of Service Dialog */}
+        <Dialog open={termsOpen} onOpenChange={setTermsOpen}>
+          <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <FileText className="w-6 h-6 text-primary" />
+                Terms of Service
+              </DialogTitle>
+              <DialogDescription>
+                Last updated: {new Date().toLocaleDateString()}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6 py-4 text-sm">
+              <section>
+                <h3 className="text-lg font-semibold mb-2">1. Acceptance of Terms</h3>
+                <p className="text-muted-foreground">
+                  By accessing and using Async, you accept and agree to be bound by the terms and 
+                  provision of this agreement. If you do not agree to these terms, please do not use our service.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">2. Use License</h3>
+                <p className="text-muted-foreground">
+                  We grant you a limited, non-exclusive, non-transferable license to use our service 
+                  for your personal or commercial use, subject to these terms.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">3. User Responsibilities</h3>
+                <p className="text-muted-foreground">
+                  You are responsible for maintaining the confidentiality of your account and for all 
+                  activities that occur under your account. You agree to use the service only for lawful purposes.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">4. Content Ownership</h3>
+                <p className="text-muted-foreground">
+                  You retain all rights to the content you create using our service. We claim no 
+                  ownership over your generated images and creations.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">5. Service Modifications</h3>
+                <p className="text-muted-foreground">
+                  We reserve the right to modify or discontinue the service at any time, with or 
+                  without notice. We shall not be liable to you or any third party for any modification 
+                  or discontinuance of the service.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">6. Limitation of Liability</h3>
+                <p className="text-muted-foreground">
+                  In no event shall Async be liable for any indirect, incidental, special, consequential, 
+                  or punitive damages arising out of or relating to your use of the service.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold mb-2">7. Termination</h3>
+                <p className="text-muted-foreground">
+                  We may terminate or suspend your account and access to the service immediately, 
+                  without prior notice, for any breach of these Terms.
+                </p>
+              </section>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Contact Dialog */}
+        <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <Mail className="w-6 h-6 text-primary" />
+                Contact Us
+              </DialogTitle>
+              <DialogDescription>
+                We'd love to hear from you
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6 py-4">
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                  <h4 className="font-semibold mb-2">General Inquiries</h4>
+                  <a 
+                    href="mailto:hello@async.com" 
+                    className="text-primary hover:underline flex items-center gap-2"
+                  >
+                    <Mail className="w-4 h-4" />
+                    Harmonjavier01@gmail.com
+                  </a>
+                </div>
+
+                <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                  <h4 className="font-semibold mb-2">Support</h4>
+                  <a 
+                    href="mailto:support@async.com" 
+                    className="text-primary hover:underline flex items-center gap-2"
+                  >
+                    <Mail className="w-4 h-4" />
+                    support@async.com
+                  </a>
+                </div>
+
+                <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                  <h4 className="font-semibold mb-2">Github</h4>
+                  <a 
+                    href="mailto:Harmonjavier01@gmail.com" 
+                    className="text-primary hover:underline flex items-center gap-2"
+                  >
+                    <Mail className="w-4 h-4" />
+                    https://github.com/HarmonJavier01
+                  </a>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <p className="text-sm text-muted-foreground text-center">
+                  We typically respond within 24-48 hours during business days
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
