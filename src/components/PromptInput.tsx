@@ -198,26 +198,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     reader.readAsDataURL(file);
   };
 
-  // Removed drag and drop image file handlers as per user request
-  // const handleDragOver = (e: React.DragEvent) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setIsDragging(true);
-  // };
-
-  // const handleDragLeave = (e: React.DragEvent) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setIsDragging(false);
-  // };
-
-  // const handleDrop = (e: React.DragEvent) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setIsDragging(false);
-  //   const files = Array.from(e.dataTransfer.files);
-  //   if (files.length > 0) handleImageFile(files[0]);
-  // };
+  
 
   // Handles clipboard paste event - extracts image from clipboard and processes it
   const handlePaste = (e: ClipboardEvent) => {

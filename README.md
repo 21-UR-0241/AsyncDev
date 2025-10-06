@@ -2,7 +2,7 @@
 
 An AI-powered marketing visual generator that creates stunning, brand-tailored images through an interactive onboarding process. Built with modern web technologies and powered by Google's Gemini 2.5 Flash model.
 
-![Async AI Tool](https://img.shields.io/badge/React-18.3.1-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4.19-yellow) ![Supabase](https://img.shields.io/badge/Supabase-2.58.0-green)
+![Async AI Tool](https://img.shields.io/badge/React-18.3.1-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4.19-yellow) ![Supabase](https://img.shields.io/badge/Supabase-2.58.0-green) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white) ![ShadCN UI](https://img.shields.io/badge/ShadCN_UI-000000?style=flat&logo=shadcnui&logoColor=white) ![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=flat&logo=radix-ui&logoColor=white) ![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=flat&logo=react-query&logoColor=white)
 
 ## ✨ Features
 
