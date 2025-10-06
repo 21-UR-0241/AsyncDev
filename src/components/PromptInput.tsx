@@ -45,16 +45,13 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
-  // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
-  // Apply theme on change
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
@@ -166,7 +163,9 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     return date.toLocaleDateString();
   };
 
+  // Handles image file processing: validates type and size, then converts to base64 data URL
   const handleImageFile = (file: File) => {
+    // Validate file type - only allow image files
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid file type",
@@ -176,6 +175,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
       return;
     }
 
+    // Validate file size - limit to 10MB
     if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -185,6 +185,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
       return;
     }
 
+    // Convert file to base64 data URL for display and storage
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
@@ -197,26 +198,28 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     reader.readAsDataURL(file);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
+  // Removed drag and drop image file handlers as per user request
+  // const handleDragOver = (e: React.DragEvent) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   setIsDragging(true);
+  // };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
+  // const handleDragLeave = (e: React.DragEvent) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   setIsDragging(false);
+  // };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) handleImageFile(files[0]);
-  };
+  // const handleDrop = (e: React.DragEvent) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   setIsDragging(false);
+  //   const files = Array.from(e.dataTransfer.files);
+  //   if (files.length > 0) handleImageFile(files[0]);
+  // };
 
+  // Handles clipboard paste event - extracts image from clipboard and processes it
   const handlePaste = (e: ClipboardEvent) => {
     const items = Array.from(e.clipboardData?.items || []);
     const imageItem = items.find(item => item.type.startsWith('image/'));
@@ -226,47 +229,55 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     }
   };
 
+  // Handles file selection from input element - processes the first selected file
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) handleImageFile(files[0]);
   };
 
+  // Removes the currently selected source image and resets the file input
   const removeSourceImage = () => {
     setSourceImage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     toast({ title: "Image removed" });
   };
 
+  // Set up global paste event listener for clipboard image support
   useEffect(() => {
     document.addEventListener('paste', handlePaste);
     return () => document.removeEventListener('paste', handlePaste);
   }, []);
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Left Sidebar */}
-      <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 border-r border-border bg-background overflow-hidden flex flex-col`}>
-        {/* Sidebar Header with Menu Button */}
-        <div className="p-3 flex items-center gap-3">
+      <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 border-r border-border/50 bg-background/80 backdrop-blur-xl overflow-hidden flex flex-col shadow-2xl`}>
+        {/* Sidebar Header */}
+        <div className="p-4 flex items-center gap-3 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSidebarOpen(false)}
-            className="h-10 w-10 p-0 hover:bg-muted rounded-lg"
+            className="h-10 w-10 p-0 hover:bg-primary/10 rounded-xl transition-all hover:scale-105"
           >
             <Menu className="w-5 h-5" />
           </Button>
-          <div>
-            <h2 className="text-base font-semibold">Async</h2>
-            <p className="text-xs text-muted-foreground">2.5 Flash</p>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Async</h2>
+              <p className="text-xs text-muted-foreground">2.5 Flash</p>
+            </div>
           </div>
         </div>
 
         {/* New Chat Button */}
-        <div className="px-3 py-2">
+        <div className="px-4 py-3">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 h-11 rounded-full hover:bg-muted"
+            className="w-full justify-start gap-3 h-12 rounded-2xl hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent transition-all group border border-transparent hover:border-primary/20"
             onClick={() => {
               setCustomPrompt("");
               setSourceImage(null);
@@ -275,53 +286,57 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
               toast({ title: "New chat", description: "Ready for a new generation" });
             }}
           >
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
-              <Edit2 className="w-4 h-4" />
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 group-hover:from-primary/30 group-hover:to-primary/10 transition-all group-hover:scale-110">
+              <Edit2 className="w-4 h-4 text-primary" />
             </div>
-            <span className="text-sm">New chat</span>
+            <span className="text-sm font-medium">New chat</span>
           </Button>
         </div>
 
         {/* Recent Prompts List */}
-        <div className="flex-1 overflow-y-auto px-3 py-2">
-          <div className="mb-2 px-3">
+        <div className="flex-1 overflow-y-auto px-4 py-2">
+          <div className="mb-3 px-1">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-medium text-muted-foreground">Recent</h3>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent</h3>
               {recentPrompts.length > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={clearAllPrompts}
-                  className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-destructive/10 rounded-lg"
                 >
-                  Clear
+                  Clear all
                 </Button>
               )}
             </div>
           </div>
 
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             {recentPrompts.length === 0 ? (
-              <div className="text-center py-12 px-4">
-                <Clock className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="text-xs text-muted-foreground">No recent chats</p>
+              <div className="text-center py-16 px-4">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                  <Clock className="w-8 h-8 text-muted-foreground/50" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">No recent chats</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">Your chat history will appear here</p>
               </div>
             ) : (
               recentPrompts.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => loadRecentPrompt(item.prompt)}
-                  className="group px-3 py-2.5 rounded-lg hover:bg-muted cursor-pointer transition-colors relative"
+                  className="group px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent cursor-pointer transition-all relative border border-transparent hover:border-primary/20 hover:shadow-sm"
                 >
-                  <p className="text-sm line-clamp-1 pr-6 mb-0.5">{item.prompt}</p>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <p className="text-sm line-clamp-2 pr-8 mb-1 font-medium">{item.prompt}</p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="w-3 h-3" />
                     <span>{formatTimestamp(item.timestamp)}</span>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={(e) => deleteRecentPrompt(item.id, e)}
-                    className="absolute top-1.5 right-1.5 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+                    className="absolute top-2 right-2 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/20 hover:text-destructive rounded-lg"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
@@ -332,17 +347,17 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
         </div>
 
         {/* Settings at Bottom */}
-        <div className="p-3 border-t border-border">
+        <div className="p-4 border-t border-border/50 bg-gradient-to-t from-muted/30 to-transparent">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSettingsOpen(true)}
-            className="w-full justify-start gap-3 h-10 rounded-lg hover:bg-muted"
+            className="w-full justify-start gap-3 h-11 rounded-xl hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent transition-all group border border-transparent hover:border-primary/20"
           >
-            <div className="flex items-center justify-center w-8 h-8">
-              <Settings className="w-5 h-5" />
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-muted to-muted/50 group-hover:from-primary/20 group-hover:to-primary/5 transition-all">
+              <Settings className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <span className="text-sm">Settings</span>
+            <span className="text-sm font-medium">Settings</span>
           </Button>
         </div>
       </div>
@@ -350,122 +365,72 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Top Menu Bar */}
-        <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-3 flex items-center justify-between gap-3">
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-6 py-4 flex items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-3">
             {!sidebarOpen && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(true)}
-                className="h-9 w-9 p-0"
+                className="h-10 w-10 p-0 rounded-xl hover:bg-primary/10 transition-all hover:scale-105"
               >
                 <Menu className="w-5 h-5" />
               </Button>
             )}
-            <h1 className="text-xl font-bold">Image Generator</h1>
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Image Generator</h1>
+            </div>
           </div>
           
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="w-4 h-4" />
-            <span className="font-medium">{currentTime.toLocaleTimeString()}</span>
+          <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-full border border-border/50">
+            <Clock className="w-4 h-4 text-primary" />
+            <span className="font-semibold text-sm">{currentTime.toLocaleTimeString()}</span>
             <span className="text-muted-foreground/50">•</span>
-            <span>{currentTime.toLocaleDateString()}</span>
+            <span className="text-sm text-muted-foreground">{currentTime.toLocaleDateString()}</span>
           </div>
         </div>
 
         {/* Main Form */}
-        <div className="p-6 max-w-4xl mx-auto space-y-4">
-          <Card className="p-6 space-y-4 shadow-card">
-            <div className="space-y-2">
-              <Label className="text-base font-semibold flex items-center gap-2">
-                <Image className="w-5 h-5 text-primary" />
-                Source Image (Optional)
-              </Label>
-              
-              <div
-                ref={dropZoneRef}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-lg transition-all ${
-                  isDragging ? 'border-primary bg-primary/10' : 'border-border bg-muted/30'
-                }`}
-              >
-                {sourceImage ? (
-                  <div className="relative p-4">
-                    <div className="relative rounded-lg overflow-hidden">
-                      <img src={sourceImage} alt="Source" className="w-full h-48 object-contain" />
-                      {/* Watermark in bottom right corner */}
-                      <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-white/80 text-[10px] font-medium">
-                        <span>Watermark "Async"</span>
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="opacity-80">
-                          <circle cx="16" cy="16" r="14" stroke="white" strokeWidth="1.5" fill="none"/>
-                          <path d="M10 22 L22 10 M22 10 L22 18 M22 10 L14 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="destructive" className="absolute top-6 right-6" onClick={removeSourceImage}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                    <p className="text-xs text-center text-muted-foreground mt-2">
-                      This image will be used as reference
-                    </p>
-                  </div>
-                ) : (
-                  <div className="p-8 text-center">
-                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-sm font-medium mb-2">Drag & drop an image here</p>
-                    <p className="text-xs text-muted-foreground mb-4">Or paste (Ctrl+V / Cmd+V)</p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <Button variant="outline" onClick={() => fileInputRef.current?.click()} type="button">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Choose Image
-                    </Button>
-                  </div>
-                )}
-              </div>
-              
-              <p className="text-sm text-muted-foreground">
-                {sourceImage ? "AI will modify this image based on prompt" : "Upload for image-to-image generation"}
-              </p>
-            </div>
+        <div className="p-6 max-w-5xl mx-auto space-y-6">
+          <Card className="p-8 space-y-6 shadow-2xl bg-gradient-to-br from-card via-card to-muted/20 border-2 border-border/50 hover:border-primary/30 transition-all">
+            {}
 
-            <div className="space-y-2">
-              <div className="relative">
+            <div className="space-y-3">
+              <Label className="text-lg font-bold flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                Custom Prompt
+              </Label>
+              <div className="relative group">
                 <Textarea
                   id="prompt"
                   value={customPrompt}
                   onChange={(e) => setCustomPrompt(e.target.value)}
-                  placeholder="Ask Async"
-                  rows={1}
-                  className="resize-none min-h-[56px] rounded-3xl border-2 border-border bg-muted/30 px-6 py-4 pr-32 text-base focus:border-primary transition-colors"
+                  placeholder="Describe your vision..."
+                  rows={5}
+                  className="resize-none min-h-[200px] rounded-2xl border-2 border-border/50 bg-gradient-to-br from-muted/50 to-muted/20 px-6 py-5 pr-16 text-base focus:border-primary focus:shadow-lg focus:shadow-primary/10 transition-all placeholder:text-muted-foreground/60"
                   style={{ paddingBottom: '3rem' }}
                 />
-                {/* Bottom Toolbar - Gemini Style */}
-                {/*  */}
               </div>
             </div>
 
             <Button
               onClick={handleGenerate}
               disabled={isGenerating || !customPrompt.trim() || !!jsonError}
-              className="w-full gradient-primary text-white font-medium py-6 text-lg hover:shadow-glow transition-smooth"
+              className="w-full bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary/70 text-white font-semibold py-7 text-lg rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-primary/30 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed group"
             >
               {isGenerating ? (
                 <>
-                  <Sparkles className="w-5 h-5 mr-2 animate-spin" />
-                  Generating Image...
+                  <Sparkles className="w-6 h-6 mr-3 animate-spin" />
+                  <span className="animate-pulse">Generating Magic...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5 mr-2" />
+                  <Sparkles className="w-6 h-6 mr-3 group-hover:animate-pulse" />
                   {sourceImage ? "Transform Image" : "Generate With Async"}
                 </>
               )}
@@ -474,29 +439,35 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
 
           <Collapsible open={showJson} onOpenChange={setShowJson}>
             <CollapsibleTrigger asChild>
-              <Button variant="outline" className="w-full">
-                <Code2 className="w-4 h-4 mr-2" />
+              <Button variant="outline" className="w-full rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all group">
+                <Code2 className="w-5 h-5 mr-2 group-hover:text-primary transition-colors" />
                 {showJson ? "Hide" : "View"} JSON Prompt Data
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-4">
-              <Card className="p-6 bg-muted/50">
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold flex items-center gap-2">
-                    <Code2 className="w-4 h-4" />
-                    Structured Prompt JSON
-                  </h3>
+            <CollapsibleContent className="mt-6">
+              <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/20 border-2 border-border/50 shadow-lg">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                      <Code2 className="w-4 h-4 text-primary" />
+                    </div>
+                    <h3 className="text-sm font-bold">Structured Prompt JSON</h3>
+                  </div>
                   <Textarea
                     value={customJsonPrompt}
                     onChange={(e) => handleJsonChange(e.target.value)}
-                    className="font-mono text-xs min-h-[200px] resize-y"
+                    className="font-mono text-xs min-h-[200px] resize-y bg-background/50 border-2 border-border/50 focus:border-primary rounded-xl"
                     placeholder="Edit JSON prompt..."
                   />
                   {jsonError && (
-                    <p className="text-xs text-destructive font-medium">{jsonError}</p>
+                    <div className="flex items-center gap-2 p-3 bg-destructive/10 border-2 border-destructive/30 rounded-xl">
+                      <div className="w-2 h-2 rounded-full bg-destructive"></div>
+                      <p className="text-xs text-destructive font-semibold">{jsonError}</p>
+                    </div>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Edit the structured JSON data used to generate the AI prompt.
+                  <p className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="mt-0.5">💡</span>
+                    <span>Edit the structured JSON data used to generate the AI prompt.</span>
                   </p>
                 </div>
               </Card>
@@ -507,40 +478,48 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
 
       {/* Settings Modal */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[550px] bg-gradient-to-br from-background to-muted/20 border-2">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Settings</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                <Settings className="w-5 h-5 text-primary" />
+              </div>
+              Settings
+            </DialogTitle>
+            <DialogDescription className="text-base">
               Customize your experience
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Appearance</h3>
+              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <div className="w-1 h-4 bg-primary rounded-full"></div>
+                Appearance
+              </h3>
               
               <RadioGroup value={theme} onValueChange={(value) => handleThemeChange(value as Theme)}>
-                <div className="flex items-center space-x-3 p-4 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                <div className="flex items-center space-x-4 p-5 rounded-2xl hover:bg-muted/50 transition-all cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-lg has-[:checked]:shadow-primary/10">
                   <RadioGroupItem value="light" id="light" />
                   <Label htmlFor="light" className="flex items-center gap-4 cursor-pointer flex-1">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-200">
-                      <Sun className="w-6 h-6 text-yellow-600" />
+                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-200 shadow-lg">
+                      <Sun className="w-7 h-7 text-yellow-600" />
                     </div>
                     <div>
-                      <p className="font-semibold text-base">Light Mode</p>
+                      <p className="font-bold text-base">Light Mode</p>
                       <p className="text-sm text-muted-foreground">Bright and clear interface</p>
                     </div>
                   </Label>
                 </div>
 
-                <div className="flex items-center space-x-3 p-4 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                <div className="flex items-center space-x-4 p-5 rounded-2xl hover:bg-muted/50 transition-all cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-lg has-[:checked]:shadow-primary/10">
                   <RadioGroupItem value="dark" id="dark" />
                   <Label htmlFor="dark" className="flex items-center gap-4 cursor-pointer flex-1">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 border-2 border-slate-600">
-                      <Moon className="w-6 h-6 text-blue-300" />
+                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 border-2 border-slate-600 shadow-lg">
+                      <Moon className="w-7 h-7 text-blue-300" />
                     </div>
                     <div>
-                      <p className="font-semibold text-base">Dark Mode</p>
+                      <p className="font-bold text-base">Dark Mode</p>
                       <p className="text-sm text-muted-foreground">Easy on the eyes</p>
                     </div>
                   </Label>
@@ -549,9 +528,9 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
             </div>
 
             <div className="pt-4 border-t border-border">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <span>Theme preference saved automatically</span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground p-3 bg-green-500/10 rounded-xl border border-green-500/20">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="font-medium">Theme preference saved automatically</span>
               </div>
             </div>
           </div>
