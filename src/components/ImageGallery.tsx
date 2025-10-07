@@ -109,7 +109,10 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
         <!DOCTYPE html>
         <html>
           <head>
-            <title>AI Generated Image</title>
+          
+            <title>Generated Image Preview</title>
+             
+
             <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
               body { background: ${bgColor}; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
@@ -124,6 +127,8 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
               #zoomLevel { color: ${textColor}; text-align: center; font-size: 12px; padding: 8px 0; border-top: 1px solid ${controlsBorder}; font-weight: 500; }
               .divider { height: 1px; background: ${controlsBorder}; margin: 4px 0; }
             </style>
+            <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🤖</text></svg>" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🤖</text></svg>" />
           </head>
           <body>
             <div id="container"><div id="imageWrapper"><img src="${imageUrl}" alt="AI Generated Image" id="image" /></div></div>

@@ -1,3 +1,5 @@
+![Async AI Tool Logo](./assets/image/marketing-image-1_1-1759839662302-removebg-preview.png)
+
 # 🤖 Async AI Tool
 
 An AI-powered marketing visual generator that creates stunning, brand-tailored images through an interactive onboarding process. Built with modern web technologies and powered by Google's Gemini 2.5 Flash model.

@@ -163,9 +163,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     return date.toLocaleDateString();
   };
 
-  // Handles image file processing: validates type and size, then converts to base64 data URL
   const handleImageFile = (file: File) => {
-    // Validate file type - only allow image files
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid file type",
@@ -175,7 +173,6 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
       return;
     }
 
-    // Validate file size - limit to 10MB
     if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -185,7 +182,6 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
       return;
     }
 
-    // Convert file to base64 data URL for display and storage
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
@@ -198,9 +194,6 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     reader.readAsDataURL(file);
   };
 
-  
-
-  // Handles clipboard paste event - extracts image from clipboard and processes it
   const handlePaste = (e: ClipboardEvent) => {
     const items = Array.from(e.clipboardData?.items || []);
     const imageItem = items.find(item => item.type.startsWith('image/'));
@@ -210,20 +203,17 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     }
   };
 
-  // Handles file selection from input element - processes the first selected file
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) handleImageFile(files[0]);
   };
 
-  // Removes the currently selected source image and resets the file input
   const removeSourceImage = () => {
     setSourceImage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     toast({ title: "Image removed" });
   };
 
-  // Set up global paste event listener for clipboard image support
   useEffect(() => {
     document.addEventListener('paste', handlePaste);
     return () => document.removeEventListener('paste', handlePaste);
@@ -366,19 +356,17 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
             </div>
           </div>
           
-          <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-full border border-border/50">
-            <Clock className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-sm">{currentTime.toLocaleTimeString()}</span>
-            <span className="text-muted-foreground/50">•</span>
-            <span className="text-sm text-muted-foreground">{currentTime.toLocaleDateString()}</span>
+          <div className="hidden sm:flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-1.5 sm:py-2 bg-muted/50 rounded-full border border-border/50">
+            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+            <span className="font-semibold text-xs sm:text-sm">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <span className="hidden md:inline text-muted-foreground/50">•</span>
+            <span className="hidden md:inline text-xs sm:text-sm text-muted-foreground">{currentTime.toLocaleDateString()}</span>
           </div>
         </div>
 
         {/* Main Form */}
         <div className="p-6 max-w-5xl mx-auto space-y-6">
           <Card className="p-8 space-y-6 shadow-2xl bg-gradient-to-br from-card via-card to-muted/20 border-2 border-border/50 hover:border-primary/30 transition-all">
-            {}
-
             <div className="space-y-3">
               <Label className="text-lg font-bold flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">

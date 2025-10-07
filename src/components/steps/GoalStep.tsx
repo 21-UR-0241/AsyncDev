@@ -40,28 +40,32 @@ export const GoalStep = ({ onNext, onBack }: GoalStepProps) => {
       title="What's Your Marketing Goal?"
       description="Select all that apply"
     >
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="space-y-3">
-          <Label className="text-base">Choose your objectives</Label>
-          <div className="space-y-3">
+          <Label className="text-sm sm:text-base">Choose your objectives</Label>
+          <div className="space-y-2 sm:space-y-3">
             {goalOptions.map((goal) => (
               <div
                 key={goal.id}
                 onClick={() => toggleGoal(goal.id)}
-                className={`p-4 rounded-xl border-2 transition-smooth cursor-pointer ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-smooth cursor-pointer ${
                   selectedGoals.includes(goal.id)
                     ? "border-primary bg-primary/5 shadow-soft"
                     : "border-border hover:border-primary/50 hover:bg-muted/50"
                 }`}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-2 sm:gap-3">
                   <Checkbox
                     checked={selectedGoals.includes(goal.id)}
-                    className="mt-1"
+                    className="mt-0.5 sm:mt-1 flex-shrink-0"
                   />
-                  <div className="flex-1">
-                    <div className="font-medium mb-1">{goal.label}</div>
-                    <div className="text-sm text-muted-foreground">{goal.description}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm sm:text-base mb-0.5 sm:mb-1">
+                      {goal.label}
+                    </div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">
+                      {goal.description}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -69,18 +73,18 @@ export const GoalStep = ({ onNext, onBack }: GoalStepProps) => {
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex-1"
+            className="w-full sm:flex-1 order-2 sm:order-1"
           >
             Back
           </Button>
           <Button
             onClick={handleNext}
             disabled={selectedGoals.length === 0}
-            className="flex-1 gradient-primary text-white"
+            className="w-full sm:flex-1 gradient-primary text-white order-1 sm:order-2"
           >
             Continue
           </Button>
