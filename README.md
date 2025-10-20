@@ -1,15 +1,15 @@
 ![Async AI Tool Logo](./assets/image/marketing-image-1_1-1759839662302-removebg-preview.png)
 
-# 🤖 Async AI Tool
+# 🤖 Asyncdev AI
 
-An AI-powered marketing visual generator that creates stunning, brand-tailored images through an interactive onboarding process. Built with modern web technologies and powered by Google's Gemini 2.5 Flash model.
+An AI-powered marketing visual generator that creates stunning, brand-tailored images through an interactive onboarding process. Built with modern web technologies and powered by multiple AI image generation APIs.
 
 ![Async AI Tool](https://img.shields.io/badge/React-18.3.1-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4.19-yellow) ![Supabase](https://img.shields.io/badge/Supabase-2.58.0-green) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white) ![ShadCN UI](https://img.shields.io/badge/ShadCN_UI-000000?style=flat&logo=shadcnui&logoColor=white) ![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=flat&logo=radix-ui&logoColor=white) ![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=flat&logo=react-query&logoColor=white)
 
 ## ✨ Features
 
 - **Interactive Onboarding**: Step-by-step process to collect your brand preferences (industry, niche, goals, style, format, profile)
-- **AI-Powered Generation**: Leverages Google's Gemini 2.5 Flash model for high-quality image creation
+- **AI-Powered Generation**: Leverages multiple AI APIs for high-quality image creation (Pollinations.ai, Google Imagen, Stability AI)
 - **Smart Prompt Building**: Automatically constructs detailed prompts based on your onboarding data
 - **Customizable Prompts**: Edit generated prompts before image creation
 - **Image Gallery**: View and manage all generated images
@@ -33,12 +33,14 @@ An AI-powered marketing visual generator that creates stunning, brand-tailored i
 ### Backend
 
 - **Supabase Functions** - Serverless functions powered by Deno API
+- **Firebase Functions** - Additional serverless functions for AI integration
 - **Supabase** - Backend-as-a-Service for database and auth
 
 ### AI Integration
 
--
-- **Google Gemini 2.5 Flash** - Advanced multimodal AI model for image generation
+- **Pollinations.ai** - Primary free AI image generation API (currently active)
+- **Google Imagen** - Advanced multimodal AI model via Firebase Functions
+- **Stability AI** - Stable Diffusion XL via Firebase Functions
 
 ## 🚀 Getting Started
 
@@ -47,6 +49,7 @@ An AI-powered marketing visual generator that creates stunning, brand-tailored i
 - Node.js (v18 or higher)
 - npm, yarn, or bun package manager
 - Supabase CLI (for local development)
+- Firebase CLI (optional, for Firebase Functions deployment)
 
 ### Installation
 
@@ -54,7 +57,7 @@ An AI-powered marketing visual generator that creates stunning, brand-tailored i
 
    ```bash
    git clone <repository-url>
-   cd async-ai-studio
+   cd asyncdev-ai
    ```
 
 2. **Install dependencies**
@@ -80,20 +83,30 @@ An AI-powered marketing visual generator that creates stunning, brand-tailored i
 
 4. **Environment Variables**
 
-   Create a `.env` file in the root directory and add your API keys:
+   Create a `.env` file in the root directory. For basic functionality (using Pollinations.ai), no API keys are required. For production deployment with Firebase Functions:
 
    ```env
-   # Lovable AI Gateway API Key (required for image generation)
-   LOVABLE_API_KEY=your_lovable_api_key_here
+   # Firebase Functions API Keys (optional, for production deployment)
+   # GOOGLE_AI_API_KEY=your_google_ai_api_key_here
+   # STABILITY_API_KEY=your_stability_api_key_here
 
    # Supabase configuration (if using custom Supabase instance)
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
-   > **Note**: Get your `LOVABLE_API_KEY` from your Lovable workspace settings.
+5. **Deploy Functions (optional, for production)**
 
-5. **Deploy Supabase Functions** (for local development)
+   For Firebase Functions:
+   ```bash
+   # Install Firebase CLI
+   npm install -g firebase-tools
+
+   # Deploy functions
+   firebase deploy --only functions
+   ```
+
+   For Supabase Functions:
    ```bash
    supabase functions deploy generate-image
    ```
@@ -116,7 +129,7 @@ An AI-powered marketing visual generator that creates stunning, brand-tailored i
 
 ### Onboarding Process
 
-1. **Welcome**: Introduction to the AI Async Studio
+1. **Welcome**: Introduction to Asyncdev AI
 2. **Industry**: Select your business industry
 3. **Niche**: Define your specific market niche
 4. **Goals**: Choose your marketing objectives
@@ -136,7 +149,7 @@ An AI-powered marketing visual generator that creates stunning, brand-tailored i
 ## 📁 Project Structure
 
 ```
-async-ai-studio/
+asyncdev-ai/
 ├── public/                 # Static assets
 ├── src/
 │   ├── components/         # Reusable UI components
@@ -154,6 +167,9 @@ async-ai-studio/
 │   ├── functions/         # Serverless functions
 │   │   └── generate-image/# Image generation function
 │   └── config.toml        # Supabase configuration
+├── functions/             # Firebase Functions
+│   ├── src/               # Function source code
+│   └── ...
 ├── package.json
 ├── vite.config.ts
 ├── tailwind.config.ts
@@ -185,12 +201,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [ShadCN UI](https://ui.shadcn.com/) for the beautiful component library
-- [Google Gemini](https://ai.google.dev/) for the powerful AI model
+- [Pollinations.ai](https://pollinations.ai/) for the free AI image generation
+- [Google Imagen](https://ai.google.dev/) for advanced AI capabilities
+- [Stability AI](https://stability.ai/) for Stable Diffusion models
 - [Supabase](https://supabase.com/) for the backend infrastructure
+- [Firebase](https://firebase.google.com/) for serverless functions
+- Harmon Javier for developing this project
 
 ## 📞 Support
 
 If you have any questions or need help, please:
+
+https://github.com/HarmonJavier01/Async_ai_gen.git
 
 - Open an issue on GitHub
 - Check the documentation

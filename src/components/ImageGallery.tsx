@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Download, Share2, ExternalLink, ChevronDown, ChevronUp, Copy } from "lucide-react";
+import { Download, Share2, ExternalLink, ChevronDown, ChevronUp, Copy, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
 interface ImageData {
   url: string;
+  base64?: string; // For Nano Banana base64 images
   prompt?: {
+    original?: string;
+    enhanced?: string;
     subject?: string;
     style?: string;
     genre?: string;
@@ -16,6 +19,9 @@ interface ImageData {
     background?: string;
   };
   parameters?: {
+    model?: string;
+    quality?: string;
+    aspectRatio?: string;
     sampler?: string;
     seed?: string;
     sampling_method?: string;
@@ -23,7 +29,6 @@ interface ImageData {
     cfg_scale?: string;
     width?: string;
     height?: string;
-    model?: string;
     vae?: string;
     denoising?: string;
     clip_skip?: string;
@@ -37,9 +42,10 @@ interface ImageData {
 interface ImageGalleryProps {
   images: (string | ImageData)[];
   onDownload: (imageUrl: string, format: string) => void;
+  onRegenerate?: (imageData: ImageData, index: number) => void; // New prop for regeneration
 }
 
-export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
+export const ImageGallery = ({ images, onDownload, onRegenerate }: ImageGalleryProps) => {
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
   const toggleCard = (index: number) => {
@@ -83,17 +89,71 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
 
   const handleCopyPrompt = (imageData: ImageData, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const promptText = imageData.prompt 
-      ? Object.entries(imageData.prompt)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join('\n')
-      : 'No prompt data available';
+    
+    // Priority: original prompt > enhanced prompt > structured prompt
+    let promptText = '';
+    
+    if (imageData.prompt?.original) {
+      promptText = imageData.prompt.original;
+    } else if (imageData.prompt?.enhanced) {
+      promptText = imageData.prompt.enhanced;
+    } else if (imageData.prompt) {
+      promptText = Object.entries(imageData.prompt)
+        .filter(([key]) => key !== 'original' && key !== 'enhanced')
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+    } else {
+      promptText = 'No prompt data available';
+    }
     
     navigator.clipboard.writeText(promptText);
     toast({
       title: "Prompt copied!",
       description: "Prompt details copied to clipboard",
     });
+  };
+
+  const handleDownloadImage = async (imageUrl: string, imageData: ImageData, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    
+    try {
+      // Check if it's a base64 data URL
+      if (imageUrl.startsWith('data:')) {
+        // Direct download for base64 images
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = `Async-Ai-${Date.now()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Download started!",
+          description: "Your image is being downloaded",
+        });
+      } else {
+        // Use the original onDownload function for URL images
+        onDownload(imageUrl, "1:1");
+      }
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast({
+        title: "Download failed",
+        description: "Could not download the image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRegenerate = (imageData: ImageData, index: number, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (onRegenerate) {
+      onRegenerate(imageData, index);
+      toast({
+        title: "Regenerating...",
+        description: "Creating a new variation",
+      });
+    }
   };
 
   const openImageInNewTab = async (imageUrl: string) => {
@@ -109,10 +169,7 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
         <!DOCTYPE html>
         <html>
           <head>
-          
             <title>Generated Image Preview</title>
-             
-
             <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
               body { background: ${bgColor}; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
@@ -127,8 +184,8 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
               #zoomLevel { color: ${textColor}; text-align: center; font-size: 12px; padding: 8px 0; border-top: 1px solid ${controlsBorder}; font-weight: 500; }
               .divider { height: 1px; background: ${controlsBorder}; margin: 4px 0; }
             </style>
-            <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🤖</text></svg>" />
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🤖</text></svg>" />
+            <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍌</text></svg>" />
+            <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍌</text></svg>" />
           </head>
           <body>
             <div id="container"><div id="imageWrapper"><img src="${imageUrl}" alt="AI Generated Image" id="image" /></div></div>
@@ -195,6 +252,11 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
     return typeof image === 'string' ? { url: image } : image;
   };
 
+  const isNanoBanana = (imageData: ImageData): boolean => {
+    return imageData.parameters?.model?.toLowerCase().includes('nano-banana') ||
+           imageData.parameters?.model?.toLowerCase().includes('gemini');
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {images.map((image, index) => {
@@ -202,12 +264,21 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
         const imageData = getImageData(image);
         const isExpanded = expandedCards.has(index);
         const hasPromptData = imageData.prompt || imageData.parameters;
+        const showNanoBananaBadge = isNanoBanana(imageData);
 
         return (
           <div 
             key={index}
             className="group relative bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border"
           >
+            {/* Nano Banana Badge */}
+            {showNanoBananaBadge && (
+              <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg">
+                <Sparkles className="w-3 h-3" />
+                Async
+              </div>
+            )}
+
             <div 
               className="bg-muted relative flex items-center justify-center aspect-square cursor-pointer overflow-hidden"
               onClick={() => openImageInNewTab(imageUrl)}
@@ -230,10 +301,7 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
                 <Button
                   size="sm"
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDownload(imageUrl, "1:1");
-                  }}
+                  onClick={(e) => handleDownloadImage(imageUrl, imageData, e)}
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
@@ -254,6 +322,17 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
                     onClick={(e) => handleCopyPrompt(imageData, e)}
                   >
                     <Copy className="w-4 h-4" />
+                  </Button>
+                )}
+                {onRegenerate && hasPromptData && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="shadow-lg hover:shadow-xl transition-all"
+                    onClick={(e) => handleRegenerate(imageData, index, e)}
+                    title="Regenerate variation"
+                  >
+                    <RefreshCw className="w-4 h-4" />
                   </Button>
                 )}
               </div>
@@ -278,25 +357,46 @@ export const ImageGallery = ({ images, onDownload }: ImageGalleryProps) => {
 
                 {isExpanded && (
                   <div className="mt-3 space-y-3 text-xs animate-in fade-in slide-in-from-top-2 duration-300">
-                    {/* Prompt Information */}
-                    {imageData.prompt && Object.keys(imageData.prompt).length > 0 && (
+                    {/* Original Prompt */}
+                    {imageData.prompt?.original && (
                       <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
-                        <h4 className="text-foreground font-semibold text-xs uppercase tracking-wide mb-2">Prompt</h4>
-                        {Object.entries(imageData.prompt).map(([key, value]) => (
-                          <div key={key} className="flex flex-col space-y-1">
-                            <span className="text-primary font-medium capitalize">
-                              {key.replace(/_/g, ' ')}
-                            </span>
-                            <span className="text-muted-foreground pl-2 leading-relaxed">"{value}"</span>
-                          </div>
-                        ))}
+                        <h4 className="text-foreground font-semibold text-xs uppercase tracking-wide mb-2">Original Prompt</h4>
+                        <p className="text-muted-foreground leading-relaxed">{imageData.prompt.original}</p>
+                      </div>
+                    )}
+
+                    {/* Enhanced Prompt */}
+                    {imageData.prompt?.enhanced && imageData.prompt.enhanced !== imageData.prompt.original && (
+                      <div className="space-y-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                        <h4 className="text-primary font-semibold text-xs uppercase tracking-wide mb-2 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Enhanced Prompt
+                        </h4>
+                        <p className="text-muted-foreground leading-relaxed text-xs">{imageData.prompt.enhanced}</p>
+                      </div>
+                    )}
+
+                    {/* Structured Prompt Data */}
+                    {imageData.prompt && Object.keys(imageData.prompt).filter(k => k !== 'original' && k !== 'enhanced').length > 0 && (
+                      <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
+                        <h4 className="text-foreground font-semibold text-xs uppercase tracking-wide mb-2">Prompt Details</h4>
+                        {Object.entries(imageData.prompt)
+                          .filter(([key]) => key !== 'original' && key !== 'enhanced')
+                          .map(([key, value]) => (
+                            <div key={key} className="flex flex-col space-y-1">
+                              <span className="text-primary font-medium capitalize">
+                                {key.replace(/_/g, ' ')}
+                              </span>
+                              <span className="text-muted-foreground pl-2 leading-relaxed">"{value}"</span>
+                            </div>
+                          ))}
                       </div>
                     )}
 
                     {/* Parameters */}
                     {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (
                       <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
-                        <h4 className="text-foreground font-semibold text-xs uppercase tracking-wide mb-2">Parameters</h4>
+                        <h4 className="text-foreground font-semibold text-xs uppercase tracking-wide mb-2">Generation Settings</h4>
                         <div className="grid grid-cols-2 gap-2">
                           {Object.entries(imageData.parameters).map(([key, value]) => (
                             <div key={key} className="flex flex-col space-y-1">

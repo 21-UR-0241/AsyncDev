@@ -15,7 +15,10 @@ import { Sparkles, ImagePlus, RefreshCw, Heart, Mail, Shield, FileText, Zap, Git
 import { OnboardingData } from "@/types/onboarding";
 import { buildPrompt, formatPromptForAI } from "@/utils/promptBuilder";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { functions } from "@/integrations/firebase/client";
+import { httpsCallable } from "firebase/functions";
+
+
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -42,60 +45,172 @@ const Index = () => {
     });
   };
 
-  const handleGenerateImage = async (customPrompt?: string) => {
-    setIsGenerating(true);
+  
+
+
+  // Function to call Firebase Cloud Function for image generation
+// const handleGenerateImage = async (customPrompt?: string) => {
+//   setIsGenerating(true);
+  
+//   try {
+//     const promptData = buildPrompt(onboardingData as OnboardingData);
+//     const prompt = customPrompt || formatPromptForAI(promptData);
     
-    try {
-      const promptData = buildPrompt(onboardingData as OnboardingData);
-      const prompt = customPrompt || formatPromptForAI(promptData);
+//     console.log("Generating image with prompt:", prompt);
+    
+//     const API_KEY = import.meta.env.VITE_REPLICATE_API_KEY;
+    
+//     // Start prediction
+//     const response = await fetch(
+//       'https://api.replicate.com/v1/predictions',
+//       {
+//         method: 'POST',
+//         headers: {
+//           'Authorization': `Bearer ${API_KEY}`,
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           version: "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637", // FLUX schnell
+//           input: {
+//             prompt: prompt,
+//             aspect_ratio: "1:1",
+//             output_format: "png",
+//             num_outputs: 1
+//           }
+//         })
+//       }
+//     );
+
+//     if (!response.ok) {
+//       const errorData = await response.text();
+//       console.error("API Response:", errorData);
+//       throw new Error(`API error: ${response.status} - ${errorData}`);
+//     }
+
+//     let prediction = await response.json();
+//     console.log("Initial prediction:", prediction);
+    
+//     // Poll for completion
+//     while (prediction.status !== "succeeded" && prediction.status !== "failed") {
+//       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
       
-      console.log("Generating image with prompt:", prompt);
+//       const pollResponse = await fetch(
+//         `https://api.replicate.com/v1/predictions/${prediction.id}`,
+//         {
+//           headers: {
+//             'Authorization': `Bearer ${API_KEY}`,
+//           }
+//         }
+//       );
       
-      const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt }
-      });
+//       prediction = await pollResponse.json();
+//       console.log("Prediction status:", prediction.status);
+//     }
+    
+//     if (prediction.status === "failed") {
+//       throw new Error(prediction.error || "Image generation failed");
+//     }
+    
+//     // Get the image URL
+//     const imageUrl = prediction.output[0];
+    
+//     setGeneratedImages(prev => [imageUrl, ...prev]);
+    
+//     toast({
+//       title: "Image generated!",
+//       description: "Your marketing visual is ready.",
+//     });
+    
+//   } catch (error: unknown) {
+//     console.error("Generation error:", error);
+//     toast({
+//       title: "Generation failed",
+//       description: error instanceof Error ? error.message : "Please try again.",
+//       variant: "destructive",
+//     });
+//   } finally {
+//     setIsGenerating(false);
+//   }
+// };
 
-      if (error) {
-        console.error("Function error:", error);
-        throw error;
-      }
 
-      if (data?.error) {
-        throw new Error(data.error);
-      }
 
-      if (!data?.imageUrl) {
-        throw new Error('No image URL returned');
-      }
 
-      setGeneratedImages(prev => [data.imageUrl, ...prev]);
-
-      toast({
-        title: "Image generated!",
-        description: "Your marketing visual is ready.",
-      });
-    } catch (error) {
-      console.error("Generation error:", error);
-      toast({
-        title: "Generation failed",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleDownload = (imageUrl: string, format: string) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `marketing-image-${format}-${Date.now()}.jpg`;
-    link.click();
+const handleGenerateImage = async (customPrompt?: string) => {
+  setIsGenerating(true);
+  
+  try {
+    const promptData = buildPrompt(onboardingData as OnboardingData);
+    const prompt = customPrompt || formatPromptForAI(promptData);
+    
+    console.log("Generating image with prompt:", prompt);
+    
+    const encodedPrompt = encodeURIComponent(prompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&model=flux`;
+    
+    const img = new Image();
+    
+    const loadPromise = new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = imageUrl;
+    });
+    
+    await loadPromise;
+    
+    setGeneratedImages(prev => [imageUrl, ...prev]);
     
     toast({
-      title: "Download started",
-      description: `Downloading in ${format} format`,
+      title: "Image generated!",
+      description: "Your marketing visual is ready.",
     });
+    
+  } catch (error: unknown) {
+    console.error("Generation error:", error);
+    toast({
+      title: "Generation failed",
+      description: "Please try again.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsGenerating(false);
+  }
+};
+//end
+
+  //download image
+  const handleDownload = async (imageUrl: string, format: string) => {
+    try {
+      // Fetch the image as a blob to bypass CORS issues
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      // Create a temporary URL for the blob
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Create and trigger download
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `marketing-image-${format}-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the blob URL
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+      
+      toast({
+        title: "Download started",
+        description: `Downloading in ${format} format`,
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download failed",
+        description: "Please try right-clicking the image and selecting 'Save image as'",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderStep = () => {
@@ -287,10 +402,10 @@ const Index = () => {
                   rel="noopener noreferrer"
                   className="group font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent hover:from-purple-600 hover:via-indigo-600 hover:to-blue-600 dark:hover:from-purple-400 dark:hover:via-indigo-400 dark:hover:to-blue-400 transition-all duration-500"
                 >
-                <span className="relative text-black dark:text-white">
-  Async
-  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></div>
-</span>
+                  <span className="relative text-black dark:text-white">
+                    Async
+                    <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></div>
+                  </span>
                 </a>
               </div>
 
@@ -540,13 +655,14 @@ const Index = () => {
                 <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
                   <h4 className="font-semibold mb-3 text-slate-900 dark:text-white">General Inquiries</h4>
                   <a 
-                    href="mailto:Harmonjavier01@gmail.com" 
+                    
+                    href="mailto:https://mail.google.com/mail/u/0/#inbox/FMfcgzQcqQvxdQqSxHrxrkhnbMlFggCP?compose=new" 
                     className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-2 group"
                   >
                     <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
                       <Mail className="w-4 h-4" />
                     </div>
-                    <span className="font-medium">Harmonjavier01@gmail.com</span>
+                    <span  className="font-medium">Harmonjavier01@gmail.com</span>
                   </a>
                 </div>
 
@@ -559,7 +675,7 @@ const Index = () => {
                     <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/50 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/50 transition-colors">
                       <Mail className="w-4 h-4" />
                     </div>
-                    <span className="font-medium">support@async.com</span>
+                    <span className="font-medium">support@asyncai.com</span>
                   </a>
                 </div>
 

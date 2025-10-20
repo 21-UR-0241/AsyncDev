@@ -1,3 +1,4 @@
+
 import { OnboardingStep } from "../OnboardingStep";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, Palette, Smartphone } from "lucide-react";
@@ -7,6 +8,27 @@ interface WelcomeStepProps {
 }
 
 export const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
+  const features = [
+    {
+      icon: Palette,
+      title: "Custom Styles",
+      description: "Match your brand perfectly",
+      example: "Choose from minimal, bold, professional, or playful visual styles that align with your brand identity"
+    },
+    {
+      icon: Zap,
+      title: "Fast Generation",
+      description: "Get results in seconds",
+      example: "AI-powered image creation delivers high-quality marketing visuals in under 30 seconds"
+    },
+    {
+      icon: Smartphone,
+      title: "Multiple Formats",
+      description: "All social media sizes",
+      example: "Generate images optimized for Instagram, Facebook, LinkedIn, YouTube, and more platforms"
+    }
+  ];
+
   return (
     <>
       <style>{`
@@ -167,34 +189,41 @@ export const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
               </p>
             </div>
 
-            {/* Feature Cards - Responsive grid with staggered animations */}
+            {/* Feature Cards - Responsive grid with staggered animations and detailed descriptions */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 sm:pt-6 px-4 sm:px-0">
-              <div className="p-4 sm:p-5 rounded-xl bg-muted/50 hover:bg-muted/70 transition-all duration-200 card-hover opacity-0 animate-fadeInUp delay-300 border border-transparent hover:border-primary/20">
-                <div className="text-3xl sm:text-4xl mb-2 animate-bounce-slow">🎨</div>
-                <h4 className="font-medium mb-1 text-sm sm:text-base flex items-center justify-center gap-2">
-                  <Palette className="w-4 h-4 text-primary" />
-                  Custom Styles
-                </h4>
-                <p className="text-xs sm:text-sm text-muted-foreground">Match your brand perfectly</p>
-              </div>
-              
-              <div className="p-4 sm:p-5 rounded-xl bg-muted/50 hover:bg-muted/70 transition-all duration-200 card-hover opacity-0 animate-fadeInUp delay-400 border border-transparent hover:border-primary/20">
-                <div className="text-3xl sm:text-4xl mb-2 animate-bounce-slow delay-100">⚡</div>
-                <h4 className="font-medium mb-1 text-sm sm:text-base flex items-center justify-center gap-2">
-                  <Zap className="w-4 h-4 text-primary" />
-                  Fast Generation
-                </h4>
-                <p className="text-xs sm:text-sm text-muted-foreground">Get results in seconds</p>
-              </div>
-              
-              <div className="p-4 sm:p-5 rounded-xl bg-muted/50 hover:bg-muted/70 transition-all duration-200 card-hover opacity-0 animate-fadeInUp delay-500 border border-transparent hover:border-primary/20">
-                <div className="text-3xl sm:text-4xl mb-2 animate-bounce-slow delay-200">📱</div>
-                <h4 className="font-medium mb-1 text-sm sm:text-base flex items-center justify-center gap-2">
-                  <Smartphone className="w-4 h-4 text-primary" />
-                  Multiple Formats
-                </h4>
-                <p className="text-xs sm:text-sm text-muted-foreground">All social media sizes</p>
-              </div>
+              {features.map((feature, index) => {
+                const IconComponent = feature.icon;
+                return (
+                  <div 
+                    key={feature.title}
+                    className={`p-4 sm:p-5 rounded-xl bg-muted/50 hover:bg-muted/70 transition-all duration-200 card-hover opacity-0 animate-fadeInUp delay-${300 + (index * 100)} border border-transparent hover:border-primary/20 group`}
+                  >
+                    {/* Icon with background */}
+                    <div className="mb-3 flex justify-center">
+                      <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                        <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+                      </div>
+                    </div>
+                    
+                    {/* Title */}
+                    <h4 className="font-semibold mb-1 text-sm sm:text-base">
+                      {feature.title}
+                    </h4>
+                    
+                    {/* Short description */}
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                      {feature.description}
+                    </p>
+                    
+                    {/* Detailed example with divider */}
+                    <div className="pt-2 border-t border-border/50">
+                      <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                        {feature.example}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

@@ -1,32 +1,39 @@
-import { OnboardingData, PromptData } from "@/types/onboarding";
+import { OnboardingData } from "@/types/onboarding";
 
-export const buildPrompt = (data: OnboardingData): PromptData => {
-  const goalDescriptions = data.goals.map(goal => {
-    const goalMap: Record<string, string> = {
-      "brand-awareness": "increase brand visibility and recognition",
-      "product-promotion": "showcase products in an appealing way",
-      "engagement": "drive social media interactions",
-      "conversions": "encourage purchases and signups",
-      "education": "inform and educate the audience",
-      "announcements": "communicate news and updates",
-    };
-    return goalMap[goal] || goal;
-  }).join(", ");
+export interface PromptData {
+  industry: string;
+  niche: string;
+  targetAudience: string;
+  goals: string[];
+  style: string;
+  tone: string;
+  colorPalette: string;
+  formats: string[];
+}
 
-  const instructions = `Create a professional marketing image for a ${data.industry} business specializing in ${data.niche}. 
-The image should have a ${data.style} visual style with a ${data.tone.toLowerCase()} tone. 
-Primary brand color: ${data.colorPalette}.
-The purpose is to ${goalDescriptions}.
-Make it eye-catching, professional, and suitable for social media marketing.`;
-
+export function buildPrompt(data: OnboardingData): PromptData {
   return {
-    ...data,
-    category: "marketing",
-    agencyType: "digital-marketing",
-    instructions,
+    industry: data.industry || "General",
+    niche: data.niche || "Not specified",
+    targetAudience: data.targetAudience || "General audience",
+    goals: data.goals || ["Brand awareness"],
+    style: data.style || "Modern",
+    tone: data.tone || "Professional",
+    colorPalette: data.colorPalette || "#6366F1",
+    formats: data.formats || ["Square"],
   };
-};
+}
 
-export const formatPromptForAI = (promptData: PromptData): string => {
-  return promptData.instructions;
-};
+export function formatPromptForAI(promptData: PromptData): string {
+  const parts = [
+    `Create a professional marketing image for the ${promptData.industry} industry`,
+    `focused on ${promptData.niche}`,
+    `targeting ${promptData.targetAudience}`,
+    `to achieve ${promptData.goals.join(", ")}`,
+    `in a ${promptData.style} style with ${promptData.tone} tone`,
+    `using ${promptData.colorPalette} as primary color`,
+    `optimized for ${promptData.formats.join(", ")} format(s)`,
+  ];
+
+  return parts.join(", ") + ".";
+}

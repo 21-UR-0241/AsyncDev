@@ -1,6 +1,7 @@
 export interface OnboardingData {
   industry: string;
   niche: string;
+  targetAudience: string;
   goals: string[];
   style: string;
   tone: string;

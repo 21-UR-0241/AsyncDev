@@ -1,25 +1,21 @@
-import { ReactNode } from "react";
+import React from "react";
 
 interface OnboardingStepProps {
-  children: ReactNode;
   title: string;
-  description?: string;
+  description: string;
+  children: React.ReactNode;
 }
 
-export const OnboardingStep = ({ children, title, description }: OnboardingStepProps) => {
+export const OnboardingStep = ({ title, description, children }: OnboardingStepProps) => {
   return (
-    <div className="w-full max-w-2xl mx-auto animate-fade-in">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          {title}
-        </h2>
-        {description && (
-          <p className="text-muted-foreground text-lg">{description}</p>
-        )}
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">{title}</h2>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+          {description}
+        </p>
       </div>
-      <div className="bg-card shadow-card rounded-2xl p-8 border border-border/50">
-        {children}
-      </div>
+      <div>{children}</div>
     </div>
   );
 };
