@@ -155,94 +155,154 @@ export const ImageGallery = ({ images, onDownload, onRegenerate }: ImageGalleryP
       });
     }
   };
+  
+ const openImageInNewTab = async (imageUrl: string) => {
+  try {
+    const isDark = document.documentElement.classList.contains('dark');
+    const bgColor = isDark ? '#000' : '#fff';
+    const textColor = isDark ? '#fff' : '#000';
+    const controlsBg = isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)';
+    const controlsHover = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
+    const controlsBorder = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
 
-  const openImageInNewTab = async (imageUrl: string) => {
-    try {
-      const isDark = document.documentElement.classList.contains('dark');
-      const bgColor = isDark ? '#000' : '#fff';
-      const textColor = isDark ? '#fff' : '#000';
-      const controlsBg = isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)';
-      const controlsHover = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
-      const controlsBorder = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
-      
-      const html = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Generated Image Preview</title>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { background: ${bgColor}; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
-              #container { width: 100vw; height: 100vh; overflow: auto; display: flex; align-items: center; justify-content: center; position: relative; }
-              #imageWrapper { transition: transform 0.2s ease; cursor: grab; }
-              #imageWrapper.dragging { cursor: grabbing; }
-              img { display: block; max-width: 100%; max-height: 100vh; user-select: none; -webkit-user-drag: none; }
-              #controls { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; background: ${controlsBg}; backdrop-filter: blur(10px); padding: 12px; border-radius: 12px; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border: 1px solid ${controlsBorder}; }
-              button { width: 40px; height: 40px; border: none; background: transparent; color: ${textColor}; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; font-weight: 600; }
-              button:hover:not(:disabled) { background: ${controlsHover}; }
-              button:disabled { opacity: 0.3; cursor: not-allowed; }
-              #zoomLevel { color: ${textColor}; text-align: center; font-size: 12px; padding: 8px 0; border-top: 1px solid ${controlsBorder}; font-weight: 500; }
-              .divider { height: 1px; background: ${controlsBorder}; margin: 4px 0; }
-            </style>
-            <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍌</text></svg>" />
-            <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍌</text></svg>" />
-          </head>
-          <body>
-            <div id="container"><div id="imageWrapper"><img src="${imageUrl}" alt="AI Generated Image" id="image" /></div></div>
-            <div id="controls">
-              <button id="fitFill" title="Toggle Fit/Fill">⛶</button>
-              <div class="divider"></div>
-              <button id="zoomIn" title="Zoom In">+</button>
-              <button id="zoomOut" title="Zoom Out">−</button>
-              <button id="reset" title="Reset">⟲</button>
-              <div id="zoomLevel">100%</div>
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Generated Image Preview</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { background: ${bgColor}; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
+            #container { width: 100vw; height: 100vh; overflow: auto; display: flex; align-items: center; justify-content: center; position: relative; }
+            #imageWrapper { transition: transform 0.2s ease; cursor: grab; }
+            #imageWrapper.dragging { cursor: grabbing; }
+            img { display: block; max-width: 100%; max-height: 100vh; user-select: none; -webkit-user-drag: none; }
+            #controls { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; background: ${controlsBg}; backdrop-filter: blur(10px); padding: 15px; border-radius: 12px; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border: 1px solid ${controlsBorder}; }
+            button {
+              width: 40px; height: 40px; border: none; background: transparent; color: ${textColor}; border-radius: 8px; cursor: pointer; font-size: 24px; line-height: 1;
+              display: flex; align-items: center; justify-content: center; transition: background 0.2s; font-weight: 400;
+            }
+            button:hover:not(:disabled) { background: ${controlsHover}; }
+            button:disabled { opacity: 0.3; cursor: not-allowed; }
+            #reset { font-size: 20px; }
+            #zoomLevel { color: ${textColor}; text-align: center; font-size: 12px; padding: 8px 0; font-weight: 500; border-top: 1px solid ${controlsBorder}; }
+          </style>
+        </head>
+        <body>
+          <div id="container">
+            <div id="imageWrapper">
+              <img src="${imageUrl}" alt="AI Generated Image" id="image" />
             </div>
-            <script>
-              let zoom=1,posX=0,posY=0,isDragging=false,startX=0,startY=0,fitMode='contain';
-              const image=document.getElementById('image'),imageWrapper=document.getElementById('imageWrapper'),container=document.getElementById('container'),zoomInBtn=document.getElementById('zoomIn'),zoomOutBtn=document.getElementById('zoomOut'),resetBtn=document.getElementById('reset'),fitFillBtn=document.getElementById('fitFill'),zoomLevel=document.getElementById('zoomLevel');
-              function updateTransform(){imageWrapper.style.transform=\`translate(\${posX}px,\${posY}px) scale(\${zoom})\`;zoomLevel.textContent=Math.round(zoom*100)+'%';zoomInBtn.disabled=zoom>=5;zoomOutBtn.disabled=zoom<=1;resetBtn.disabled=zoom===1;}
-              function updateFitMode(){if(fitMode==='contain'){image.style.maxWidth='100%';image.style.maxHeight='100vh';image.style.width='auto';image.style.height='auto';image.style.objectFit='contain';}else{image.style.maxWidth='none';image.style.maxHeight='none';image.style.width='100vw';image.style.height='100vh';image.style.objectFit='cover';}}
-              zoomInBtn.addEventListener('click',()=>{if(zoom<5){zoom=Math.min(zoom+0.5,5);updateTransform();}});
-              zoomOutBtn.addEventListener('click',()=>{if(zoom>1){zoom=Math.max(zoom-0.5,1);if(zoom===1){posX=0;posY=0;}updateTransform();}});
-              resetBtn.addEventListener('click',()=>{zoom=1;posX=0;posY=0;updateTransform();});
-              fitFillBtn.addEventListener('click',()=>{fitMode=fitMode==='contain'?'cover':'contain';zoom=1;posX=0;posY=0;updateFitMode();updateTransform();});
-              container.addEventListener('wheel',(e)=>{e.preventDefault();if(e.deltaY<0){zoom=Math.min(zoom+0.1,5);}else{zoom=Math.max(zoom-0.1,1);if(zoom===1){posX=0;posY=0;}}updateTransform();});
-              imageWrapper.addEventListener('mousedown',(e)=>{if(zoom>1){isDragging=true;startX=e.clientX-posX;startY=e.clientY-posY;imageWrapper.classList.add('dragging');}});
-              document.addEventListener('mousemove',(e)=>{if(isDragging&&zoom>1){posX=e.clientX-startX;posY=e.clientY-startY;updateTransform();}});
-              document.addEventListener('mouseup',()=>{isDragging=false;imageWrapper.classList.remove('dragging');});
-              document.addEventListener('keydown',(e)=>{if(e.key==='+'||e.key==='='){zoomInBtn.click();}else if(e.key==='-'||e.key==='_'){zoomOutBtn.click();}else if(e.key==='0'){resetBtn.click();}else if(e.key==='f'||e.key==='F'){fitFillBtn.click();}});
-              let touchDistance=0;
-              imageWrapper.addEventListener('touchstart',(e)=>{if(e.touches.length===2){const dx=e.touches[0].clientX-e.touches[1].clientX;const dy=e.touches[0].clientY-e.touches[1].clientY;touchDistance=Math.sqrt(dx*dx+dy*dy);}else if(e.touches.length===1&&zoom>1){isDragging=true;startX=e.touches[0].clientX-posX;startY=e.touches[0].clientY-posY;}});
-              imageWrapper.addEventListener('touchmove',(e)=>{if(e.touches.length===2){e.preventDefault();const dx=e.touches[0].clientX-e.touches[1].clientX;const dy=e.touches[0].clientY-e.touches[1].clientY;const distance=Math.sqrt(dx*dx+dy*dy);const delta=distance-touchDistance;zoom=Math.max(1,Math.min(5,zoom+delta*0.01));touchDistance=distance;updateTransform();}else if(isDragging&&zoom>1){posX=e.touches[0].clientX-startX;posY=e.touches[0].clientY-startY;updateTransform();}});
-              imageWrapper.addEventListener('touchend',()=>{isDragging=false;});
-              updateFitMode();updateTransform();
-            </script>
-          </body>
-        </html>
-      `;
-      
-      const blob = new Blob([html], { type: 'text/html' });
-      const blobUrl = URL.createObjectURL(blob);
-      const newWindow = window.open(blobUrl, '_blank');
-      
-      if (!newWindow) {
-        toast({
-          title: "Popup blocked",
-          description: "Please allow popups for this site",
-          variant: "destructive",
-        });
-      }
-      
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-    } catch (error) {
-      console.error('Error opening image:', error);
-      toast({
-        title: "Error opening image",
-        description: "Could not open image in new tab",
-        variant: "destructive",
-      });
+          </div>
+          <div id="controls">
+            <button id="zoomIn" title="Zoom In">+</button>
+            <button id="zoomOut" title="Zoom Out">−</button>
+            <button id="reset" title="Reset">↻</button>
+            <div id="zoomLevel">100%</div>
+          </div>
+          <script>
+            let zoom = 1, posX = 0, posY = 0, isDragging = false, startX = 0, startY = 0;
+
+            const container = document.getElementById('container');
+            const image = document.getElementById('image');
+            const imageWrapper = document.getElementById('imageWrapper');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const resetBtn = document.getElementById('reset');
+            const zoomLevel = document.getElementById('zoomLevel');
+
+            // Update transform (zoom level and position)
+            function updateTransform() {
+              imageWrapper.style.transform = \`translate(\${posX}px, \${posY}px) scale(\${zoom})\`;
+              zoomLevel.textContent = Math.round(zoom * 100) + '%';
+              zoomInBtn.disabled = zoom >= 5;
+              zoomOutBtn.disabled = zoom <= 1;
+              resetBtn.disabled = zoom === 1;
+            }
+
+            // Zoom In
+            zoomInBtn.addEventListener('click', () => {
+              if (zoom < 5) {
+                zoom = Math.min(zoom + 0.5, 5);
+                updateTransform();
+              }
+            });
+
+            // Zoom Out
+            zoomOutBtn.addEventListener('click', () => {
+              if (zoom > 1) {
+                zoom = Math.max(zoom - 0.5, 1);
+                if (zoom === 1) { posX = 0; posY = 0; }
+                updateTransform();
+              }
+            });
+
+            // Reset zoom
+            resetBtn.addEventListener('click', () => {
+              zoom = 1;
+              posX = 0;
+              posY = 0;
+              updateTransform();
+            });
+
+            // Mouse Wheel to Zoom
+            container.addEventListener('wheel', (e) => {
+              e.preventDefault();
+              if (e.deltaY < 0) {
+                zoom = Math.min(zoom + 0.1, 5);
+              } else {
+                zoom = Math.max(zoom - 0.1, 1);
+                if (zoom === 1) { posX = 0; posY = 0; }
+              }
+              updateTransform();
+            });
+
+            // Drag image for movement
+            imageWrapper.addEventListener('mousedown', (e) => {
+              if (zoom > 1) {
+                isDragging = true;
+                startX = e.clientX - posX;
+                startY = e.clientY - posY;
+                imageWrapper.classList.add('dragging');
+              }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+              if (isDragging && zoom > 1) {
+                posX = e.clientX - startX;
+                posY = e.clientY - startY;
+                updateTransform();
+              }
+            });
+
+            document.addEventListener('mouseup', () => {
+              isDragging = false;
+              imageWrapper.classList.remove('dragging');
+            });
+
+            // Initialize settings
+            updateTransform();
+          </script>
+        </body>
+      </html>
+    `;
+
+    // Open the generated HTML in a new tab
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    const newWindow = window.open(blobUrl, '_blank');
+    
+    if (!newWindow) {
+      alert('Popup blocked! Please allow popups for this site.');
     }
-  };
+    
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  } catch (error) {
+    console.error('Error opening image:', error);
+    alert('Could not open image in new tab.');
+  }
+};
 
   const getImageUrl = (image: string | ImageData): string => {
     return typeof image === 'string' ? image : image.url;

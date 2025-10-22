@@ -5,9 +5,10 @@ import { Sparkles, Zap, Palette, Smartphone } from "lucide-react";
 
 interface WelcomeStepProps {
   onNext: () => void;
+  onSkip?: () => void;
 }
 
-export const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
+export const WelcomeStep = ({ onNext, onSkip }: WelcomeStepProps) => {
   const features = [
     {
       icon: Palette,
@@ -227,9 +228,9 @@ export const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
             </div>
           </div>
 
-          {/* CTA Button - Responsive sizing with enhanced animations */}
-          <div className="opacity-0 animate-fadeInUp delay-600">
-            <Button 
+          {/* CTA Buttons - Responsive sizing with enhanced animations */}
+          <div className="opacity-0 animate-fadeInUp delay-600 space-y-3">
+            <Button
               onClick={onNext}
               className="w-full gradient-primary text-white font-medium py-5 sm:py-6 text-base sm:text-lg hover:shadow-glow transition-smooth active:scale-[0.98] relative overflow-hidden group"
             >
@@ -239,6 +240,16 @@ export const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
             </Button>
+
+            {onSkip && (
+              <Button
+                onClick={onSkip}
+                variant="outline"
+                className="w-full py-3 sm:py-4 text-sm sm:text-base hover:bg-slate-50 dark:hover:bg-slate-800 transition-smooth active:scale-[0.98]"
+              >
+                Skip Setup
+              </Button>
+            )}
           </div>
         </div>
       </OnboardingStep>

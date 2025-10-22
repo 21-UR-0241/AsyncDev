@@ -8,9 +8,10 @@ import { Target } from "lucide-react";
 interface NicheStepProps {
   onNext: (data: { niche?: string; targetAudience?: string }) => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
-export const NicheStep = ({ onNext, onBack }: NicheStepProps) => {
+export const NicheStep = ({ onNext, onBack, onSkip }: NicheStepProps) => {
   const [niche, setNiche] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
 
@@ -96,6 +97,19 @@ export const NicheStep = ({ onNext, onBack }: NicheStepProps) => {
             Continue
           </Button>
         </div>
+
+        {/* Skip Button */}
+        {onSkip && (
+          <div className="pt-2">
+            <Button
+              onClick={onSkip}
+              variant="ghost"
+              className="w-full text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              Skip to Prompt
+            </Button>
+          </div>
+        )}
       </div>
     </OnboardingStep>
   );

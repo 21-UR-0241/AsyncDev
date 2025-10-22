@@ -12,7 +12,6 @@ import axios from "axios";
 
 // Define secrets (these are *names* only — values are stored via firebase CLI)
 const GOOGLE_AI_API_KEY = defineSecret("GOOGLE_AI_API_KEY");
-const STABILITY_API_KEY = defineSecret("STABILITY_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,116 +25,6 @@ function sendError(res: Response, status: number, error: string, details?: strin
 }
 
 /**
- * Main image generation endpoint (uses Stability AI)
- * This is the function your frontend is calling
- */
-export const generateImage = onRequest(
-  {
-    secrets: [STABILITY_API_KEY],
-    timeoutSeconds: 300,
-    memory: "512MiB"
-  },
-  async (req, res) => {
-    // Handle CORS manually
-    res.set({
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-    });
-
-    // CORS preflight
-    if (req.method === "OPTIONS") {
-      res.status(204).send("");
-      return;
-    }
-
-    try {
-      if (req.method !== "POST") {
-        sendError(res, 405, "Method not allowed", "Use POST");
-        return;
-      }
-
-      const payload = req.body;
-      if (!payload || typeof payload !== "object") {
-        sendError(res, 400, "Invalid request format", "Request body must be a JSON object");
-        return;
-      }
-
-      const prompt = payload.prompt;
-      if (!prompt || typeof prompt !== "string") {
-        sendError(res, 400, "Prompt is required", "Prompt must be a non-empty string");
-        return;
-      }
-
-      const width = Number(payload.width ?? 1024);
-      const height = Number(payload.height ?? 1024);
-      const steps = Number(payload.steps ?? 30);
-      const cfgScale = Number(payload.cfgScale ?? 7);
-
-      if (prompt.length > 2000) {
-        sendError(res, 400, "Prompt too long", "Prompt must be less than 2000 characters");
-        return;
-      }
-
-      const apiKey = STABILITY_API_KEY.value();
-      if (!apiKey) {
-        logger.error("STABILITY_API_KEY not set");
-        sendError(res, 500, "Server configuration error", "Stability API key not configured. Please contact support.");
-        return;
-      }
-
-      logger.info("Generating image for prompt:", prompt.substring(0, 120));
-
-      const stabilityUrl = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image";
-
-      const response = await axios.post(
-        stabilityUrl,
-        {
-          text_prompts: [{ text: prompt, weight: 1 }],
-          cfg_scale: cfgScale,
-          height,
-          width,
-          steps,
-          samples: 1,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          timeout: 120000,
-        }
-      );
-
-      const respData = response.data;
-      logger.debug("Stability response received");
-
-      const base64Image = respData?.artifacts?.[0]?.base64;
-      if (!base64Image || typeof base64Image !== "string") {
-        logger.error("No image artifact from Stability");
-        sendError(res, 500, "Image generation failed", "No image returned by AI service");
-        return;
-      }
-
-      const imageUrl = `data:image/png;base64,${base64Image}`;
-
-      res.set(corsHeaders);
-      res.status(200).json({ imageUrl, success: true });
-
-      logger.info("Image generated successfully");
-
-    } catch (err: unknown) {
-      logger.error("Error in generateImage:", err instanceof Error ? err.message : err);
-      const axiosError = err as { response?: { status?: number; data?: { message?: string } } };
-      const status = axiosError.response?.status || 500;
-      const message = axiosError.response?.data?.message || (err instanceof Error ? err.message : "Failed to generate image");
-      sendError(res, status === 200 ? 500 : status, "Image generation error", message);
-    }
-  }
-);
-
-/**
  * Google Imagen image generation endpoint
  */
 export const generateImageGoogle = onRequest(
@@ -146,11 +35,7 @@ export const generateImageGoogle = onRequest(
     memory: "512MiB"
   },
   async (req, res) => {
-    if (req.method === "OPTIONS") {
-      res.set(corsHeaders).status(204).send("");
-      return;
-    }
-    res.set(corsHeaders);
+    // CORS is handled automatically by Firebase Functions v2 with cors: true
 
     try {
       if (req.method !== "POST") {
@@ -180,7 +65,7 @@ export const generateImageGoogle = onRequest(
 
       logger.info("Calling Google AI API for prompt:", prompt.substring(0, 120));
 
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict?key=${apiKey}`;
 
       const apiResponse = await fetch(apiUrl, {
         method: "POST",

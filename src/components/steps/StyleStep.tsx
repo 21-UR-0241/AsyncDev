@@ -7,6 +7,7 @@ import { useState } from "react";
 interface StyleStepProps {
   onNext: (data: { style: string; tone: string; colorPalette: string }) => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
 const styles = [
@@ -94,7 +95,7 @@ const tones = [
   { id: "authoritative", label: "Authoritative", icon: "" }
 ];
 
-export const StyleStep = ({ onNext, onBack }: StyleStepProps) => {
+export const StyleStep = ({ onNext, onBack, onSkip }: StyleStepProps) => {
   const [selectedStyle, setSelectedStyle] = useState("");
   const [selectedTone, setSelectedTone] = useState("");
   const [colorPalette, setColorPalette] = useState("#6366F1");
@@ -256,6 +257,19 @@ export const StyleStep = ({ onNext, onBack }: StyleStepProps) => {
             Continue
           </Button>
         </div>
+
+        {/* Skip Button */}
+        {onSkip && (
+          <div className="pt-2">
+            <Button
+              onClick={onSkip}
+              variant="ghost"
+              className="w-full text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              Skip to Prompt
+            </Button>
+          </div>
+        )}
       </div>
     </OnboardingStep>
   );

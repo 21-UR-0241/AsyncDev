@@ -6,6 +6,7 @@ import { Maximize, Square, RectangleHorizontal, RectangleVertical, Minimize2 } f
 interface FormatStepProps {
   onNext: (data: { format?: string; formats?: string[] }) => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
 const formatOptions = [
@@ -47,7 +48,7 @@ const formatOptions = [
   },
 ];
 
-export const FormatStep = ({ onNext, onBack }: FormatStepProps) => {
+export const FormatStep = ({ onNext, onBack, onSkip }: FormatStepProps) => {
   const [selectedFormat, setSelectedFormat] = useState<string>("");
 
   const handleNext = () => {
@@ -157,6 +158,19 @@ export const FormatStep = ({ onNext, onBack }: FormatStepProps) => {
           Continue
         </Button>
       </div>
+
+      {/* Skip Button */}
+      {onSkip && (
+        <div className="pt-2 max-w-4xl mx-auto">
+          <Button
+            onClick={onSkip}
+            variant="ghost"
+            className="w-full text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          >
+            Skip to Prompt
+          </Button>
+        </div>
+      )}
     </OnboardingStep>
   );
 };

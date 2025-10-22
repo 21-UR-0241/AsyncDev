@@ -86,7 +86,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [autoSync, setAutoSync] = useState(() => {
@@ -565,7 +565,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
     }
   };
 
-  const sidebarWidth = sidebarOpen ? "w-96" : "w-0";
+  const sidebarWidth = sidebarOpen ? "w-full md:w-96" : "w-0";
 
   const sortedRecents = useMemo(() => {
     const favs = recentPrompts.filter((r) => !!r.name).slice(0, 100);
@@ -574,9 +574,17 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
   }, [recentPrompts]);
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="flex h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
-      <div className={`${sidebarWidth} transition-all duration-300 border-r border-border/50 bg-background/80 backdrop-blur-xl overflow-hidden flex flex-col shadow-2xl`}
+      <div className={`${sidebarWidth} fixed md:relative inset-y-0 left-0 z-50 transition-all duration-300 border-r border-border/50 bg-background/95 md:bg-background/80 backdrop-blur-xl overflow-hidden flex flex-col shadow-2xl`}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={(e) => {
@@ -600,7 +608,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-base font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Async</h2>
+              <h2 className="text-base font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Async Studio</h2>
               <p className="text-xs text-muted-foreground">2.5 Flash</p>
             </div>
           </div>
@@ -829,31 +837,33 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-6 py-4 flex items-center justify-between gap-3 shadow-sm">
-          <div className="flex items-center gap-3">
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 md:px-6 py-3 md:py-4 flex flex-wrap items-center justify-between gap-2 md:gap-3 shadow-sm">
+          <div className="flex items-center gap-2 md:gap-3">
             {!sidebarOpen && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(true)}
-                className="h-10 w-10 p-0 rounded-xl hover:bg-primary/10 transition-all hover:scale-105"
+                className="h-9 w-9 md:h-10 md:w-10 p-0 rounded-xl hover:bg-primary/10 transition-all hover:scale-105"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4 md:w-5 md:h-5" />
               </Button>
             )}
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+                <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Image Generator</h1>
+              <h1 className="text-base md:text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Image Generator</h1>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" disabled={!canUndo} onClick={handleUndo} className="h-9 rounded-lg">
-              <Undo2 className="w-4 h-4 mr-1"/>Undo
+          <div className="flex items-center gap-1 md:gap-2">
+            <Button variant="ghost" size="sm" disabled={!canUndo} onClick={handleUndo} className="h-8 md:h-9 rounded-lg px-2 md:px-3">
+              <Undo2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="hidden sm:inline ml-1">Undo</span>
             </Button>
-            <Button variant="ghost" size="sm" disabled={!canRedo} onClick={handleRedo} className="h-9 rounded-lg">
-              <Redo2 className="w-4 h-4 mr-1"/>Redo
+            <Button variant="ghost" size="sm" disabled={!canRedo} onClick={handleRedo} className="h-8 md:h-9 rounded-lg px-2 md:px-3">
+              <Redo2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="hidden sm:inline ml-1">Redo</span>
             </Button>
           </div>
           <div className="hidden sm:flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-1.5 sm:py-2 bg-muted/50 rounded-full border border-border/50">
@@ -864,7 +874,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
           </div>
         </div>
 
-        <div className="p-6 max-w-5xl mx-auto space-y-6">
+        <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
           {editingSource && (
             <Alert className="border-primary/50 bg-primary/5">
               <Edit2 className="h-4 w-4 text-primary" />
@@ -884,7 +894,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
             </Alert>
           )}
 
-          <Card className="p-8 space-y-6 shadow-2xl bg-gradient-to-br from-card via-card to-muted/20 border-2 border-border/50 hover:border-primary/30 transition-all">
+          <Card className="p-4 md:p-8 space-y-4 md:space-y-6 shadow-2xl bg-gradient-to-br from-card via-card to-muted/20 border-2 border-border/50 hover:border-primary/30 transition-all">
             <div className="space-y-3">
               <Label className="text-lg font-bold flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
@@ -905,18 +915,22 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
               />
 
               <div className="flex flex-wrap items-center gap-2 justify-between">
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" className="rounded-lg" onClick={() => saveTemplate(editingSource?.name || "Quick Template")}> 
-                    <Save className="w-4 h-4 mr-1"/> Save as Template 
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button size="sm" variant="outline" className="rounded-lg h-8 md:h-9" onClick={() => saveTemplate(editingSource?.name || "Quick Template")}> 
+                    <Save className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <span className="hidden sm:inline ml-1">Save as Template</span>
+                    <span className="sm:hidden ml-1">Template</span>
                   </Button>
-                  <Button size="sm" variant="outline" className="rounded-lg" onClick={() => saveProfile(editingSource?.name || "Quick Profile")}> 
-                    <FolderPlus className="w-4 h-4 mr-1"/> Save JSON as Profile 
+                  <Button size="sm" variant="outline" className="rounded-lg h-8 md:h-9" onClick={() => saveProfile(editingSource?.name || "Quick Profile")}> 
+                    <FolderPlus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <span className="hidden sm:inline ml-1">Save JSON as Profile</span>
+                    <span className="sm:hidden ml-1">Profile</span>
                   </Button>
                 </div>
                 <Button
                   size="sm"
                   variant={autoSync ? "default" : "outline"}
-                  className="rounded-lg"
+                  className="rounded-lg h-8 md:h-9"
                   onClick={() => {
                     setAutoSync(!autoSync);
                     toast({
@@ -925,8 +939,9 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
                     });
                   }}
                 >
-                  <RefreshCw className={`w-4 h-4 mr-1 ${autoSync ? 'animate-spin' : ''}`} />
-                  {autoSync ? "Syncing" : "Sync Off"}
+                  <RefreshCw className={`w-3.5 h-3.5 md:w-4 md:h-4 ${autoSync ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline ml-1">{autoSync ? "Syncing" : "Sync Off"}</span>
+                  <span className="sm:hidden ml-1">Sync</span>
                 </Button>
               </div>
             </div>
@@ -949,47 +964,47 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
               )}
             </div>
 
-            <div className="space-y-4 pt-2">
+            <div className="space-y-3 md:space-y-4 pt-2">
               <div className="flex items-center gap-2">
-                <Label className="text-lg font-bold">Choose Your Format</Label>
+                <Label className="text-base md:text-lg font-bold">Choose Your Format</Label>
               </div>
-              <p className="text-sm text-muted-foreground">Select the aspect ratio optimized for your target platform</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Select the aspect ratio optimized for your target platform</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                 {formatOptions.map((format) => (
                   <div
                     key={format.id}
                     onClick={() => setSelectedFormat(format.id)}
-                    className={`cursor-pointer p-5 rounded-xl border-2 transition-all hover:shadow-md ${
+                    className={`cursor-pointer p-4 md:p-5 rounded-xl border-2 transition-all hover:shadow-md active:scale-95 ${
                       selectedFormat === format.id
                         ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
                         : "border-border/50 hover:border-primary/30"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className={`text-3xl mt-1 transition-transform ${selectedFormat === format.id ? "scale-110" : ""}`}>
+                    <div className="flex items-start gap-3 md:gap-4">
+                      <div className={`text-2xl md:text-3xl mt-1 transition-transform ${selectedFormat === format.id ? "scale-110" : ""}`}>
                         {format.icon}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-base">{format.name}</h3>
+                          <h3 className="font-bold text-sm md:text-base">{format.name}</h3>
                           {selectedFormat === format.id && (
-                            <Check className="w-5 h-5 text-primary" />
+                            <Check className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground mb-3">{format.description}</p>
+                        <p className="text-[11px] md:text-xs text-muted-foreground mb-2 md:mb-3">{format.description}</p>
                         
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-[10px]">
+                        <div className="space-y-1.5 md:space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge variant="secondary" className="text-[9px] md:text-[10px]">
                               {format.platform}
                             </Badge>
-                            <span className="text-[10px] text-muted-foreground">{format.dimensions}</span>
+                            <span className="text-[9px] md:text-[10px] text-muted-foreground">{format.dimensions}</span>
                           </div>
                           
                           <div className="pt-1 border-t border-border/30">
-                            <p className="text-[10px] font-medium text-muted-foreground">Best For:</p>
-                            <p className="text-[11px] text-muted-foreground/80 mt-0.5">{format.bestFor}</p>
+                            <p className="text-[9px] md:text-[10px] font-medium text-muted-foreground">Best For:</p>
+                            <p className="text-[10px] md:text-[11px] text-muted-foreground/80 mt-0.5">{format.bestFor}</p>
                           </div>
                         </div>
                       </div>
@@ -1002,23 +1017,23 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
             <Button
               onClick={handleGenerate}
               disabled={isGenerating || !customPrompt.trim() || !!jsonError}
-              className="w-full bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary/70 text-white font-semibold py-7 text-lg rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-primary/30 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed group"
+              className="w-full bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary/70 text-white font-semibold py-5 md:py-7 text-base md:text-lg rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed group"
             >
               {isGenerating ? (
                 <>
-                  <Sparkles className="w-6 h-6 mr-3 animate-spin" />
-                  <span className="animate-pulse">Generating Magic...</span>
+                  <Sparkles className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 animate-spin" />
+                  <span className="animate-pulse text-sm md:text-base">Generating...</span>
                 </>
               ) : (
-                <div className="flex items-center justify-center gap-3">
-                  <Play className="w-6 h-6 group-hover:animate-pulse" />
-                  <span>
+                <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap">
+                  <Play className="w-5 h-5 md:w-6 md:h-6 group-hover:animate-pulse" />
+                  <span className="text-sm md:text-base">
                     {editingSource 
                       ? `Regenerate ${editingSource.name}` 
                       : (sourceImage ? "Transform Image" : "Generate With Async")
                     }
                   </span>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-[10px] md:text-xs">
                     {formatOptions.find(f => f.id === selectedFormat)?.ratio}
                   </Badge>
                 </div>
@@ -1034,27 +1049,29 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-6">
-              <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/20 border-2 border-border/50 shadow-lg">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <Code2 className="w-4 h-4 text-primary" />
+              <Card className="p-4 md:p-6 bg-gradient-to-br from-muted/50 to-muted/20 border-2 border-border/50 shadow-lg">
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 justify-between">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <Code2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
                       </div>
-                      <h3 className="text-sm font-bold">Structured Prompt JSON</h3>
+                      <h3 className="text-xs md:text-sm font-bold">Structured Prompt JSON</h3>
                       {autoSync && (
-                        <Badge variant="secondary" className="text-[10px] flex items-center gap-1">
-                          <RefreshCw className="w-3 h-3" />
+                        <Badge variant="secondary" className="text-[9px] md:text-[10px] flex items-center gap-1">
+                          <RefreshCw className="w-2.5 h-2.5 md:w-3 md:h-3" />
                           Auto-sync
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="ghost" disabled={!canUndo} onClick={handleUndo} className="h-8 rounded-lg">
-                        <Undo2 className="w-4 h-4 mr-1"/>Undo
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Button size="sm" variant="ghost" disabled={!canUndo} onClick={handleUndo} className="h-7 md:h-8 rounded-lg px-2">
+                        <Undo2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        <span className="hidden sm:inline ml-1 text-xs">Undo</span>
                       </Button>
-                      <Button size="sm" variant="ghost" disabled={!canRedo} onClick={handleRedo} className="h-8 rounded-lg">
-                        <Redo2 className="w-4 h-4 mr-1"/>Redo
+                      <Button size="sm" variant="ghost" disabled={!canRedo} onClick={handleRedo} className="h-7 md:h-8 rounded-lg px-2">
+                        <Redo2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        <span className="hidden sm:inline ml-1 text-xs">Redo</span>
                       </Button>
                     </div>
                   </div>
@@ -1087,83 +1104,85 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
       </div>
 
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-background to-muted/20 border-2">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background to-muted/20 border-2">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <Settings className="w-5 h-5 text-primary" />
+            <DialogTitle className="text-xl md:text-2xl font-bold flex items-center gap-2 md:gap-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                <Settings className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </div>
               Settings
             </DialogTitle>
-            <DialogDescription className="text-base">Customize your experience</DialogDescription>
+            <DialogDescription className="text-sm md:text-base">Customize your experience</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-8 py-2">
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                <div className="w-1 h-4 bg-primary rounded-full"></div>
+          <div className="space-y-6 md:space-y-8 py-2">
+            <div className="space-y-3 md:space-y-4">
+              <h3 className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <div className="w-1 h-3 md:h-4 bg-primary rounded-full"></div>
                 Appearance
               </h3>
               <RadioGroup value={theme} onValueChange={(value) => handleThemeChange(value as Theme)}>
-                <div className="flex items-center space-x-4 p-5 rounded-2xl hover:bg-muted/50 transition-all cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-lg has-[:checked]:shadow-primary/10">
+                <div className="flex items-center space-x-3 md:space-x-4 p-4 md:p-5 rounded-2xl hover:bg-muted/50 transition-all cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-lg has-[:checked]:shadow-primary/10">
                   <RadioGroupItem value="light" id="light" />
-                  <Label htmlFor="light" className="flex items-center gap-4 cursor-pointer flex-1">
-                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-200 shadow-lg">
-                      <Sun className="w-7 h-7 text-yellow-600" />
+                  <Label htmlFor="light" className="flex items-center gap-3 md:gap-4 cursor-pointer flex-1">
+                    <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-200 shadow-lg">
+                      <Sun className="w-6 h-6 md:w-7 md:h-7 text-yellow-600" />
                     </div>
                     <div>
-                      <p className="font-bold text-base">Light Mode</p>
-                      <p className="text-sm text-muted-foreground">Bright and clear interface</p>
+                      <p className="font-bold text-sm md:text-base">Light Mode</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Bright and clear interface</p>
                     </div>
                   </Label>
                 </div>
-                <div className="flex items-center space-x-4 p-5 rounded-2xl hover:bg-muted/50 transition-all cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-lg has-[:checked]:shadow-primary/10">
+                <div className="flex items-center space-x-3 md:space-x-4 p-4 md:p-5 rounded-2xl hover:bg-muted/50 transition-all cursor-pointer border-2 border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-lg has-[:checked]:shadow-primary/10">
                   <RadioGroupItem value="dark" id="dark" />
-                  <Label htmlFor="dark" className="flex items-center gap-4 cursor-pointer flex-1">
-                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 border-2 border-slate-600 shadow-lg">
-                      <Moon className="w-7 h-7 text-blue-300" />
+                  <Label htmlFor="dark" className="flex items-center gap-3 md:gap-4 cursor-pointer flex-1">
+                    <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 border-2 border-slate-600 shadow-lg">
+                      <Moon className="w-6 h-6 md:w-7 md:h-7 text-blue-300" />
                     </div>
                     <div>
-                      <p className="font-bold text-base">Dark Mode</p>
-                      <p className="text-sm text-muted-foreground">Easy on the eyes</p>
+                      <p className="font-bold text-sm md:text-base">Dark Mode</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Easy on the eyes</p>
                     </div>
                   </Label>
                 </div>
               </RadioGroup>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                <div className="w-1 h-4 bg-primary rounded-full"></div>
+            <div className="space-y-3 md:space-y-4">
+              <h3 className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <div className="w-1 h-3 md:h-4 bg-primary rounded-full"></div>
                 Presets
               </h3>
               <div className="flex flex-wrap items-center gap-2">
-                <Button variant="outline" onClick={handleExport} className="rounded-xl">
-                  <Download className="w-4 h-4 mr-2"/>Export Profiles & Templates
+                <Button variant="outline" onClick={handleExport} className="rounded-xl text-xs md:text-sm h-9 md:h-10">
+                  <Download className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5 md:mr-2"/>
+                  <span className="hidden sm:inline">Export Profiles & Templates</span>
+                  <span className="sm:hidden">Export</span>
                 </Button>
-                <Button variant="outline" onClick={handleImportClick} className="rounded-xl">
-                  <UploadCloud className="w-4 h-4 mr-2"/>Import
+                <Button variant="outline" onClick={handleImportClick} className="rounded-xl text-xs md:text-sm h-9 md:h-10">
+                  <UploadCloud className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5 md:mr-2"/>Import
                 </Button>
                 <input ref={hiddenFileInput} type="file" accept="application/json" onChange={handleImport} className="hidden" />
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                <div className="w-1 h-4 bg-primary rounded-full"></div>
+            <div className="space-y-3 md:space-y-4">
+              <h3 className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <div className="w-1 h-3 md:h-4 bg-primary rounded-full"></div>
                 Editor Behavior
               </h3>
-              <div className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-muted/30 transition-all">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-border/50 hover:bg-muted/30 transition-all">
                 <div className="flex-1">
-                  <p className="font-medium text-sm">Automatic Prompt ↔ JSON Sync</p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="font-medium text-xs md:text-sm">Automatic Prompt ↔ JSON Sync</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                     When enabled, changes in the prompt or JSON automatically update each other bidirectionally
                   </p>
                 </div>
                 <Button
                   size="sm"
                   variant={autoSync ? "default" : "outline"}
-                  className="rounded-lg ml-4"
+                  className="rounded-lg h-8 md:h-9 w-full sm:w-auto"
                   onClick={() => {
                     setAutoSync(!autoSync);
                     toast({
@@ -1172,7 +1191,7 @@ export const PromptInput = ({ defaultPrompt, jsonPrompt, onGenerate, isGeneratin
                     });
                   }}
                 >
-                  <RefreshCw className={`w-4 h-4 mr-1 ${autoSync ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-3.5 h-3.5 md:w-4 md:h-4 mr-1 ${autoSync ? 'animate-spin' : ''}`} />
                   {autoSync ? "On" : "Off"}
                 </Button>
               </div>

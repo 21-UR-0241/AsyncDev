@@ -6,6 +6,7 @@ import { Target, TrendingUp, Users, ShoppingCart, Heart, BookOpen, Rocket } from
 interface GoalStepProps {
   onNext: (data: { goal?: string; goals?: string[] }) => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
 const goalOptions = [
@@ -53,7 +54,7 @@ const goalOptions = [
   },
 ];
 
-export const GoalStep = ({ onNext, onBack }: GoalStepProps) => {
+export const GoalStep = ({ onNext, onBack, onSkip }: GoalStepProps) => {
   const [selectedGoal, setSelectedGoal] = useState<string>("");
 
   const handleNext = () => {
@@ -139,6 +140,19 @@ export const GoalStep = ({ onNext, onBack }: GoalStepProps) => {
           Continue
         </Button>
       </div>
+
+      {/* Skip Button */}
+      {onSkip && (
+        <div className="pt-2 max-w-4xl mx-auto">
+          <Button
+            onClick={onSkip}
+            variant="ghost"
+            className="w-full text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          >
+            Skip to Prompt
+          </Button>
+        </div>
+      )}
     </OnboardingStep>
   );
 };

@@ -73,7 +73,7 @@ export const generateImageGoogle = onRequest(async (req, res) => {
 
     logger.info("Calling Google AI API (Imagen) for prompt:", prompt.substring(0, 120));
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict?key=${apiKey}`;
 
     const apiResponse = await fetch(apiUrl, {
       method: "POST",
@@ -230,3 +230,4 @@ export const generateImageStability = onRequest(async (req, res) => {
     sendError(res, status === 200 ? 500 : status, "Image generation error", message);
   }
 });
+

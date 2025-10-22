@@ -7,6 +7,7 @@ import { useState } from "react";
 interface IndustryStepProps {
   onNext: (data: { industry: string }) => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
 const industries = [
@@ -15,7 +16,7 @@ const industries = [
   "Beauty & Cosmetics", "Travel & Hospitality", "Finance", "Other"
 ];
 
-export const IndustryStep = ({ onNext, onBack }: IndustryStepProps) => {
+export const IndustryStep = ({ onNext, onBack, onSkip }: IndustryStepProps) => {
   const [selectedIndustry, setSelectedIndustry] = useState("");
   const [customIndustry, setCustomIndustry] = useState("");
 
@@ -91,6 +92,19 @@ export const IndustryStep = ({ onNext, onBack }: IndustryStepProps) => {
             Continue
           </Button>
         </div>
+
+        {/* Skip Button */}
+        {onSkip && (
+          <div className="pt-2">
+            <Button
+              onClick={onSkip}
+              variant="ghost"
+              className="w-full text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              Skip to Prompt
+            </Button>
+          </div>
+        )}
       </div>
     </OnboardingStep>
   );

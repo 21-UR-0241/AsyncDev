@@ -7,9 +7,10 @@ interface ProfileStepProps {
   onNext: () => void;
   onBack: () => void;
   onboardingData: Partial<OnboardingData>;
+  onSkip?: () => void;
 }
 
-export const ProfileStep = ({ onNext, onBack, onboardingData }: ProfileStepProps) => {
+export const ProfileStep = ({ onNext, onBack, onboardingData, onSkip }: ProfileStepProps) => {
   // Helper function to get descriptions based on selections
   const getStyleDescription = (style?: string) => {
     const descriptions: Record<string, string> = {
@@ -205,6 +206,13 @@ export const ProfileStep = ({ onNext, onBack, onboardingData }: ProfileStepProps
             className="w-full sm:flex-1 h-12 sm:h-auto"
           >
             Back to Edit
+          </Button>
+          <Button
+            onClick={onSkip}
+            variant="outline"
+            className="w-full py-3 sm:py-4 text-sm sm:text-base hover:bg-purple-100 dark:hover:bg-purple-900 hover:text-purple-900 dark:hover:text-purple-100 transition-smooth active:scale-[0.98]"
+          >
+            Skip Setup
           </Button>
           <Button
             onClick={onNext}

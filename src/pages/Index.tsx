@@ -45,6 +45,14 @@ const Index = () => {
     });
   };
 
+  const handleSkip = () => {
+    setOnboardingComplete(true);
+    toast({
+      title: "Skipped setup!",
+      description: "You can customize your preferences later or use custom prompts.",
+    });
+  };
+
   
 
 
@@ -133,9 +141,109 @@ const Index = () => {
 //   }
 // };
 
+//google ai studio 
+
+// const handleGenerateImage = async (customPrompt?: string) => {
+//   setIsGenerating(true);
+
+//   try {
+//     const promptData = buildPrompt(onboardingData as OnboardingData);
+//     const prompt = customPrompt || formatPromptForAI(promptData);
+
+//     console.log("Generating image with prompt:", prompt);
+
+//     const response = await fetch('/api/generate-image', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         prompt: prompt,
+//         aspectRatio: "1:1",
+//       })
+//     });
+
+//     if (!response.ok) {
+//       const errorData = await response.text();
+//       throw new Error(`API error: ${response.status} - ${errorData}`);
+//     }
+
+//     const data = await response.json();
+    
+//     // Handle base64 image
+//     const imageUrl = `data:image/png;base64,${data.image}`;
+//     setGeneratedImages(prev => [imageUrl, ...prev]);
+
+//     toast({
+//       title: "Image Generated!",
+//       description: "Your marketing visual is ready.",
+//     });
+
+//   } catch (error: unknown) {
+//     console.error("Generation error:", error);
+//     toast({
+//       title: "Generation Failed",
+//       description: error instanceof Error ? error.message : "Please try again.",
+//       variant: "destructive",
+//     });
+//   } finally {
+//     setIsGenerating(false);
+//   }
+// };
+
+
+// const handleGenerateImage = async (customPrompt?: string) => {
+//   setIsGenerating(true);
+
+//   try {
+//     const promptData = buildPrompt(onboardingData as OnboardingData);
+//     const prompt = customPrompt || formatPromptForAI(promptData);
+
+//     console.log("Generating image with prompt:", prompt);
+
+//     const response = await fetch('http://localhost:10000/api/generate-image', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         prompt: prompt,
+//         aspectRatio: "1:1",
+//       })
+//     });
+
+//     if (!response.ok) {
+//       const errorData = await response.text();
+//       throw new Error(`API error: ${response.status} - ${errorData}`);
+//     }
+
+//     const data = await response.json();
+
+//     // Handle base64 image
+//     const imageUrl = `data:image/png;base64,${data.image}`;
+//     setGeneratedImages(prev => [imageUrl, ...prev]);
+
+//     toast({
+//       title: "Image Generated!",
+//       description: "Your marketing visual is ready.",
+//     });
+
+//   } catch (error: unknown) {
+//     console.error("Generation error:", error);
+//     toast({
+//       title: "Generation Failed",
+//       description: error instanceof Error ? error.message : "Please try again.",
+//       variant: "destructive",
+//     });
+//   } finally {
+//     setIsGenerating(false);
+//   }
+// };
 
 
 
+
+//default Pollinations approach
 const handleGenerateImage = async (customPrompt?: string) => {
   setIsGenerating(true);
   
@@ -216,17 +324,17 @@ const handleGenerateImage = async (customPrompt?: string) => {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <WelcomeStep onNext={() => setCurrentStep(1)} />;
+        return <WelcomeStep onNext={() => setCurrentStep(1)} onSkip={handleSkip} />;
       case 1:
-        return <IndustryStep onNext={handleStepData} onBack={() => setCurrentStep(0)} />;
+        return <IndustryStep onNext={handleStepData} onBack={() => setCurrentStep(0)} onSkip={handleSkip} />;
       case 2:
-        return <NicheStep onNext={handleStepData} onBack={() => setCurrentStep(1)} />;
+        return <NicheStep onNext={handleStepData} onBack={() => setCurrentStep(1)} onSkip={handleSkip} />;
       case 3:
-        return <GoalStep onNext={handleStepData} onBack={() => setCurrentStep(2)} />;
+        return <GoalStep onNext={handleStepData} onBack={() => setCurrentStep(2)} onSkip={handleSkip} />;
       case 4:
-        return <StyleStep onNext={handleStepData} onBack={() => setCurrentStep(3)} />;
+        return <StyleStep onNext={handleStepData} onBack={() => setCurrentStep(3)} onSkip={handleSkip} />;
       case 5:
-        return <FormatStep onNext={handleStepData} onBack={() => setCurrentStep(4)} />;
+        return <FormatStep onNext={handleStepData} onBack={() => setCurrentStep(4)} onSkip={handleSkip} />;
       case 6:
         return (
           <ProfileStep
@@ -315,74 +423,74 @@ const handleGenerateImage = async (customPrompt?: string) => {
 
         {/* Enhanced Generated Images Section */}
         {generatedImages.length > 0 && (
-          <div className="relative bg-gradient-to-br from-white/80 via-slate-50/70 to-blue-50/60 dark:from-slate-900/80 dark:via-slate-800/70 dark:to-indigo-950/60 backdrop-blur-2xl border-t border-white/30 dark:border-slate-800/60 shadow-2xl shadow-slate-900/20 dark:shadow-black/40">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent dark:from-transparent dark:via-white/5 dark:to-transparent"></div>
-            <div className="container mx-auto px-6 py-16 max-w-7xl relative">
-              <div className="space-y-12">
-                <div className="flex items-center justify-between group">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
-                        <div className="p-3 bg-gradient-to-br from-purple-500 via-pink-600 to-rose-600 rounded-xl shadow-xl shadow-purple-500/40 dark:shadow-purple-500/20 animate-pulse">
-                          <ImagePlus className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl blur-lg opacity-50 animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-                      </div>
-                      <div className="space-y-1">
-                        <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:via-pink-600 group-hover:to-rose-600 dark:group-hover:from-purple-400 dark:group-hover:via-pink-400 dark:group-hover:to-rose-400 transition-all duration-500">
-                          Your Creations
-                        </h2>
-                        <div className="flex items-center gap-2">
-                          <div className="w-12 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-                          <span className="text-sm font-medium text-slate-600 dark:text-slate-400 tracking-wide">
-                            AI-Generated Masterpieces
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-16 flex items-center gap-3">
-                      <div className="px-4 py-2 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-rose-500/10 dark:from-purple-500/5 dark:via-pink-500/5 dark:to-rose-500/5 rounded-full border border-purple-500/20 dark:border-purple-500/10">
-                        <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">
-                          {generatedImages.length} {generatedImages.length === 1 ? 'masterpiece' : 'masterpieces'} generated
-                        </p>
-                      </div>
-                      <div className="flex -space-x-1">
-                        {[...Array(Math.min(generatedImages.length, 5))].map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 border-2 border-white dark:border-slate-800 shadow-lg animate-pulse"
-                            style={{ animationDelay: `${i * 0.1}s` }}
-                          />
-                        ))}
-                        {generatedImages.length > 5 && (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-500 border-2 border-white dark:border-slate-800 shadow-lg flex items-center justify-center">
-                            <span className="text-xs font-bold text-white">+{generatedImages.length - 5}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setGeneratedImages([])}
-                      className="gap-3 px-6 py-3 border-2 border-slate-300 dark:border-slate-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-950/30 dark:hover:to-pink-950/30 hover:border-red-300 dark:hover:border-red-700 hover:text-red-600 dark:hover:text-red-400 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-red-500/20 backdrop-blur-sm"
-                    >
-                      <RefreshCw className="w-5 h-5" />
-                      Clear All
-                    </Button>
-                  </div>
+  <div className="relative bg-gradient-to-br from-white/80 via-slate-50/70 to-blue-50/60 dark:from-slate-900/80 dark:via-slate-800/70 dark:to-indigo-950/60 backdrop-blur-2xl border-t border-white/30 dark:border-slate-800/60 shadow-2xl shadow-slate-900/20 dark:shadow-black/40">
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent dark:from-transparent dark:via-white/5 dark:to-transparent"></div>
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16 max-w-7xl relative">
+      <div className="space-y-6 sm:space-y-8 md:space-y-12">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 group">
+          <div className="space-y-2 sm:space-y-3 w-full sm:w-auto">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="relative">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 via-pink-600 to-rose-600 rounded-lg sm:rounded-xl shadow-xl shadow-purple-500/40 dark:shadow-purple-500/20 animate-pulse">
+                  <ImagePlus className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <ImageGallery
-                    images={generatedImages}
-                    onDownload={handleDownload}
-                  />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg sm:rounded-xl blur-lg opacity-50 animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+              </div>
+              <div className="space-y-0.5 sm:space-y-1">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-200 dark:to-slate-300 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:via-pink-600 group-hover:to-rose-600 dark:group-hover:from-purple-400 dark:group-hover:via-pink-400 dark:group-hover:to-rose-400 transition-all duration-500">
+                  Your Creations
+                </h2>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="w-8 sm:w-12 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                  <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 tracking-wide">
+                    AI-Generated Masterpieces
+                  </span>
                 </div>
               </div>
             </div>
+            <div className="ml-0 sm:ml-16 flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-rose-500/10 dark:from-purple-500/5 dark:via-pink-500/5 dark:to-rose-500/5 rounded-full border border-purple-500/20 dark:border-purple-500/10">
+                <p className="text-xs sm:text-sm font-semibold text-purple-700 dark:text-purple-300">
+                  {generatedImages.length} {generatedImages.length === 1 ? 'masterpiece' : 'masterpieces'} generated
+                </p>
+              </div>
+              <div className="hidden sm:flex -space-x-1">
+                {[...Array(Math.min(generatedImages.length, 5))].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 border-2 border-white dark:border-slate-800 shadow-lg animate-pulse"
+                    style={{ animationDelay: `${i * 0.1}s` }}
+                  />
+                ))}
+                {generatedImages.length > 5 && (
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-500 border-2 border-white dark:border-slate-800 shadow-lg flex items-center justify-center">
+                    <span className="text-[10px] sm:text-xs font-bold text-white">+{generatedImages.length - 5}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => setGeneratedImages([])}
+              className="gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base border-2 border-slate-300 dark:border-slate-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-950/30 dark:hover:to-pink-950/30 hover:border-red-300 dark:hover:border-red-700 hover:text-red-600 dark:hover:text-red-400 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-red-500/20 backdrop-blur-sm w-full sm:w-auto"
+            >
+              <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
+              Clear All
+            </Button>
+          </div>
+        </div>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <ImageGallery
+            images={generatedImages}
+            onDownload={handleDownload}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
         {/* Enhanced Footer with Advanced Design */}
         <footer className="relative bg-gradient-to-br from-white/60 via-slate-50/50 to-blue-50/40 dark:from-slate-900/60 dark:via-slate-800/50 dark:to-indigo-950/40 backdrop-blur-2xl border-t border-white/30 dark:border-slate-800/60 mt-auto shadow-2xl shadow-slate-900/10 dark:shadow-black/30">
@@ -448,7 +556,7 @@ const handleGenerateImage = async (customPrompt?: string) => {
                     <div className="absolute inset-0 bg-blue-400 rounded-full blur-sm opacity-50 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
                   </div>
                   <p className="text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 tracking-wide">
-                    Powered by cutting-edge AI technology
+                    Powered by Asyncdev AI technology
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 text-center">
