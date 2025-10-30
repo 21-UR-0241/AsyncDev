@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth"; // Adjust path as needed
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Login from "./components/Login"; // Your login component
+import { Login } from "./components/Login"; // Your login component
 
 const queryClient = new QueryClient();
 
